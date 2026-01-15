@@ -2,6 +2,10 @@ import jpype
 from typing import Literal, List
 import yara
 import yaramod
+import os
+import sys
+import contextlib
+import re
 from .interface import PythonInterface
 from .augmented_predictor.DBSCAN_SSDEEP import AugmentedDBScan
 
@@ -15,6 +19,26 @@ RuleOutputType = Literal['yara-python', 'yaramod', 'string']
 SelectionHeuristic = Literal['AutoYara', 'PYara']
 
 augmented_algorithms = ['AugmentedKMeansDBSCAN', 'AugmentedKMeansDBSCANSoft', 'AugmentedKMeansVT', 'AugmentedKMeansVTSoft']
+
+# --- CONTEXT MANAGER TO SUPPRESS JAVA LOGS ---
+@contextlib.contextmanager
+def suppress_output(suppress=True):
+    if not suppress:
+        yield
+        return
+    try:
+        null_fds = [os.open(os.devnull, os.O_RDWR) for x in range(2)]
+        save_fds = [os.dup(1), os.dup(2)]
+        os.dup2(null_fds[0], 1)
+        os.dup2(null_fds[1], 2)
+        yield
+    finally:
+        if suppress:
+            os.dup2(save_fds[0], 1)
+            os.dup2(save_fds[1], 2)
+            for fd in null_fds + save_fds:
+                os.close(fd)
+# ---------------------------------------------
 
 class AutoPYara(PythonInterface):
     def __init__(self, ngram_top_k=1000):
@@ -65,10 +89,23 @@ class AutoPYara(PythonInterface):
              rule_name=None, 
              selection_heuristic: SelectionHeuristic = "PYara", 
              bicluster_feature_prune_coverage=50,
-             augmented_target_k=None):
+             augmented_target_k=None,
+             verbose=False):
+
+        # --- 1. PREPARE RULE NAME ---
+        # Default to 'autoyara_rule' if user provides nothing
+        base_name = "autoyara_rule"
+        
+        if rule_name:
+            # Sanitize: Replace spaces/symbols with underscores
+            clean_name = re.sub(r'[^a-zA-Z0-9_]', '_', rule_name)
+            # Ensure it doesn't start with a number (YARA syntax error)
+            if clean_name and clean_name[0].isdigit():
+                clean_name = "rule_" + clean_name
+            base_name = clean_name
+        # ----------------------------
 
         input_files_list = self.ArrayList()
-        # Handle string path vs list of paths
         if isinstance(input_files, str):
             import os
             if os.path.isdir(input_files):
@@ -81,7 +118,6 @@ class AutoPYara(PythonInterface):
                 input_files_list.add(self.File(file_path))
                 
         self.yara_cluster.inDir = input_files_list
-
         self.yara_cluster.biclusterPipelineAlg = bicluster_alg
         self.yara_cluster.clusterAlg = cluster_alg
         self.yara_cluster.benign_bloom_dir = self.File(bloom_benign)
@@ -89,24 +125,27 @@ class AutoPYara(PythonInterface):
         self.yara_cluster.selectionHeuristic = selection_heuristic
         self.yara_cluster.biclusterFeaturePruneCoverage = bicluster_feature_prune_coverage/100
 
-        if rule_name: self.yara_cluster.name = rule_name
+        # Pass name to Java too (for internal logging/files)
+        self.yara_cluster.name = base_name
+        
         if k_cluster: self.yara_cluster.k = k_cluster
-        if output_dir:
-            self.yara_cluster.out_dir = output_dir
+        if output_dir: self.yara_cluster.out_dir = output_dir
 
         self.yara_cluster.findBestRulePipelineInit()
 
+        # AUGMENTED K CALCULATION
+        calculated_k = None
         if cluster_alg in augmented_algorithms and not predictor_labels:
             if k_cluster: raise ValueError("you cannot specify k clusters for Augmented Learning clustering")
             
-            # Convert Java targets to Python list for processing
             targets = self.convert_java_to_python(self.yara_cluster.targets)
-            
             augmented_predictor = AugmentedDBScan(dbscan_threshold=similarity_threshold, augmented_target_k=augmented_target_k)
             predictor_labels = augmented_predictor.predict(targets)
             
             self.yara_cluster.k = len(set(predictor_labels))
-            print("PYARA: calculated k =", self.yara_cluster.k)
+            calculated_k = self.yara_cluster.k
+            if verbose:
+                print("PYARA: calculated k =", self.yara_cluster.k)
 
         if predictor_labels:
             if len(predictor_labels) != len(self.yara_cluster.targets):
@@ -114,23 +153,47 @@ class AutoPYara(PythonInterface):
             self.yara_cluster.predictorLabels = predictor_labels
 
         try:
-            yara_out = dict(self.yara_cluster.pythonRun())
+            # 1. EXECUTE JAVA
+            with suppress_output(suppress=not verbose):
+                yara_out = dict(self.yara_cluster.pythonRun())
             
-            if self.yara_cluster.k:
-                yara_out['k'] = self.yara_cluster.k
-
             yara_out = self.convert_java_to_python(yara_out)
+
+            # 2. CAPTURE 'k_clusters'
+            final_k = None
+            if calculated_k is not None: final_k = calculated_k
+            elif 'k_clusters' in yara_out: final_k = yara_out['k_clusters']
+            elif 'k' in yara_out: final_k = yara_out['k']
+            elif 'K' in yara_out: final_k = yara_out['K']
+            elif 'bestK' in yara_out: final_k = yara_out['bestK']
+            elif self.yara_cluster.k and self.yara_cluster.k > 0: final_k = self.yara_cluster.k
+            
+            yara_out['k'] = final_k
+            yara_out['k_clusters'] = final_k
+
             self.yara_cluster.resetYaraState()
             
+            # --- APPLY NAMING FIX ---
             rule_str = yara_out.get('rule_string', '')
-            if output_format == "string": yara_out["output"] = rule_str
-            elif output_format == "yara-python": yara_out["output"] = yara.compile(source=rule_str)
-            elif output_format == "yaramod": yara_out["output"] = self.yaramod.parse_string(rule_str)
+            if rule_str:
+                # Java returns "rule 0", "rule 1". 
+                # We regex replace "rule <digits>" with "rule <base_name>_<digits>"
+                # Example: "rule 0" -> "rule autoyara_rule_0"
+                rule_str = re.sub(r'rule\s+(\d+)', f'rule {base_name}_\\1', rule_str)
+                yara_out['rule_string'] = rule_str
+            # ------------------------
+
+            if output_format == "string": 
+                yara_out["output"] = rule_str
+            elif output_format == "yara-python": 
+                yara_out["output"] = yara.compile(source=rule_str)
+            elif output_format == "yaramod": 
+                yara_out["output"] = self.yaramod.parse_string(rule_str)
             
             self.reset_memory()
             return yara_out
         except Exception as e:
             self.yara_cluster.resetYaraState()
             self.reset_memory()
-            print(f"Exception during run: {e}")
+            if verbose: print(f"Exception during run: {e}")
             raise e
