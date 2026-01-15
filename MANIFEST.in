@@ -1,4 +1,0 @@
-include README.md
-include requirements.txt
-recursive-include autopyara/jars *
-recursive-include autopyara/data *
