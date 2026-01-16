@@ -1,0 +1,25 @@
+Index,Status,Bicluster,Cluster,Format,K,Time(s),Error
+1,SUCCESS,SpectralCoCluster,VBGMM,string,4,41.94,
+2,ERROR,SpectralCoCluster,VBGMM,yara-python,N/A,1.91,"line 1: syntax error, unexpected integer number, expecting identifier"
+3,ERROR,SpectralCoCluster,VBGMM,yaramod,N/A,2.18,"Error at 1.6-8: Syntax error: Unexpected integer, expected one of identifier"
+4,SUCCESS,SpectralCoCluster,KMeans,string,3,1.49,
+5,ERROR,SpectralCoCluster,KMeans,yara-python,N/A,1.35,"line 1: syntax error, unexpected integer number, expecting identifier"
+6,ERROR,SpectralCoCluster,KMeans,yaramod,N/A,1.41,"Error at 1.6-8: Syntax error: Unexpected integer, expected one of identifier"
+7,SUCCESS,SpectralCoCluster,AugmentedKMeansDBSCAN,string,15,86.39,
+8,ERROR,SpectralCoCluster,AugmentedKMeansDBSCAN,yara-python,N/A,83.62,"line 1: syntax error, unexpected integer number, expecting identifier"
+9,ERROR,SpectralCoCluster,AugmentedKMeansDBSCAN,yaramod,N/A,83.27,"Error at 1.6-8: Syntax error: Unexpected integer, expected one of identifier"
+10,SUCCESS,SpectralCoCluster,AugmentedKMeansVT,string,15,83.68,
+11,ERROR,SpectralCoCluster,AugmentedKMeansVT,yara-python,N/A,83.83,"line 1: syntax error, unexpected integer number, expecting identifier"
+12,ERROR,SpectralCoCluster,AugmentedKMeansVT,yaramod,N/A,83.86,"Error at 1.6-8: Syntax error: Unexpected integer, expected one of identifier"
+13,SUCCESS,SpectralCoClusterScale,VBGMM,string,3,3.26,
+14,ERROR,SpectralCoClusterScale,VBGMM,yara-python,N/A,4.71,"line 1: syntax error, unexpected integer number, expecting identifier"
+15,ERROR,SpectralCoClusterScale,VBGMM,yaramod,N/A,2.35,"Error at 1.6-8: Syntax error: Unexpected integer, expected one of identifier"
+16,SUCCESS,SpectralCoClusterScale,KMeans,string,3,1.07,
+17,ERROR,SpectralCoClusterScale,KMeans,yara-python,N/A,1.31,"line 1: syntax error, unexpected integer number, expecting identifier"
+18,ERROR,SpectralCoClusterScale,KMeans,yaramod,N/A,1.21,"Error at 1.6-8: Syntax error: Unexpected integer, expected one of identifier"
+19,SUCCESS,SpectralCoClusterScale,AugmentedKMeansDBSCAN,string,15,85.50,
+20,ERROR,SpectralCoClusterScale,AugmentedKMeansDBSCAN,yara-python,N/A,85.41,"line 1: syntax error, unexpected integer number, expecting identifier"
+21,ERROR,SpectralCoClusterScale,AugmentedKMeansDBSCAN,yaramod,N/A,85.03,"Error at 1.6-8: Syntax error: Unexpected integer, expected one of identifier"
+22,SUCCESS,SpectralCoClusterScale,AugmentedKMeansVT,string,15,84.91,
+23,ERROR,SpectralCoClusterScale,AugmentedKMeansVT,yara-python,N/A,84.52,"line 1: syntax error, unexpected integer number, expecting identifier"
+24,ERROR,SpectralCoClusterScale,AugmentedKMeansVT,yaramod,N/A,85.28,"Error at 1.6-8: Syntax error: Unexpected integer, expected one of identifier"

@@ -1,0 +1,22 @@
+rule testrules
+{
+	//Input TP Rate:
+	//3/5
+	strings:
+		//Benign FP est: -0.0 Malicious FP est: -0.0 Entropy: 5.2445502234394805 Found in 2 files
+		$x0 = { 7D 5C 0D 5C 79 6D 76 64 64 5C 04 64 5E 71 7C 41 70 7F 74 5F 67 03 51 7D 57 05 50 47 67 07 74 43 7F 51 53 61 06 0D 01 43 42 0C 07 64 5E 73 7C 43 7C 5C 05 64 5E 70 65 53 58 74 0C 73 4C 71 5F 41 60 7F 74 4D 06 76 7D 7C 65 7A 05 64 5E 76 7D 6C 7F 61 5C 41 70 7F 77 74 57 63 76 64 60 78 0C 46 47 67 76 64 7C 72 04 64 5E 71 65 53 54 0C 0C 5C 71 07 52 76 79 4C 5A 43 61 5C 0C 58 79 4C 7C 43 } //This might be a string? Looks like:}\\r\ymvdd\d^q|Apt_gQ}WPGgtCQSa\rCBd^s|C|\d^peSXtsLq_A`tMv}|ezd^v}la\ApwtWcvd`xFGgvd|rd^qeST\qRvyLZCa\XyL|C
+		//Benign FP est: -0.0 Malicious FP est: -0.0 Entropy: 5.825446386397612 Found in 1 files
+		$x4 = { 4F 78 06 7A 4F 0C 71 67 05 41 65 60 04 51 57 6D 07 7B 5B 54 07 0C 4F 51 06 41 1A 52 01 50 79 5F 00 7A 6D 58 00 1E 5F 45 03 40 43 46 02 50 02 43 0D 65 7D 4C 0D 1A 61 04 0C 43 53 01 1E 53 47 02 1A 65 06 1E 1A 42 74 77 74 52 78 70 77 64 6C 7D 76 74 5E 7E 76 42 42 7B 71 52 0D 64 70 67 7C 61 73 77 60 62 73 4D 52 6F 72 5D 46 56 7D 67 01 53 7C 76 70 5C 7C 4C 64 59 7F 5C 56 5A 7E 66 5A 47 } //This might be a string? Looks like:OxzOqgAe`QWm{[TOQARPy_zmX_E@CFPC\re}L\raCSSGeBtwtRxpwdl}vt^~vBB{qR\rdpg|asw`bsMRor]FV}gS|vp\|LdY\VZ~fZG
+		//Benign FP est: -0.0 Malicious FP est: -0.0 Entropy: 5.833591992608222 Found in 1 files
+		$x1 = { 5A 42 54 7C 4C 76 00 61 57 4C 4D 50 64 4D 5A 4C 43 5C 58 60 59 44 76 73 47 50 4C 07 62 6D 6C 0C 7F 51 60 7E 4F 00 77 63 4C 6C 06 54 53 1E 71 53 60 41 42 7E 76 7A 53 03 74 58 46 42 04 41 01 00 63 63 78 7B 77 06 4D 5E 6D 5F 5E 5B 67 5E 56 5A 52 52 66 5A 0D 6F 78 6D 61 47 45 4F 01 74 74 74 74 74 74 74 08 00 00 00 00 EF BB BF 3C 3F 78 6D 6C 20 76 65 72 73 69 6F 6E 3D 22 31 2E 30 22 20 } //This might be a string? Looks like:ZBT|LvaWLMPdMZLC\X`YDvsGPLbmlQ`~OwcLlTSqS`AB~vzStXFBAccx{wM^m_^[g^VZRRfZ\roxmaGEOttttttt<?xml version="1.0" 
+		//Benign FP est: -0.0 Malicious FP est: -0.0 Entropy: 5.81778662084022 Found in 1 files
+		$x2 = { 07 46 71 61 7A 61 56 46 50 7D 4C 40 51 5D 07 59 7A 4F 7B 77 64 42 7E 02 56 0C 72 5B 03 4D 7B 70 65 66 66 6D 7C 76 41 7A 4D 74 52 42 06 78 56 6C 50 6F 7E 50 7F 58 0D 70 06 73 1A 1A 7C 45 50 59 67 01 60 5A 52 5F 52 7F 05 58 7C 5D 0C 58 60 52 7D 74 7C 03 45 7E 4C 44 47 54 0D 43 63 04 00 6D 76 72 79 51 63 61 65 5D 05 60 7D 70 5A 72 1E 59 07 57 54 7B 53 5D 54 7D 78 06 5C 74 00 45 5C 62 } //This might be a string? Looks like:FqazaVFP}L@Q]YzO{wdB~Vr[M{peffm|vAzMtRBxVlPo~PX\rps|EPYg`ZR_RX|]X`R}t|E~LDGT\rCcmvryQcae]`}pZrYWT{S]T}x\tE\b
+		//Benign FP est: -0.0 Malicious FP est: -0.0 Entropy: 4.934581853438969 Found in 2 files
+		$x5 = { 74 74 74 74 74 74 08 08 EF BB BF 3C 3F 78 6D 6C 20 76 65 72 73 69 6F 6E 3D 22 31 2E 30 22 20 65 6E 63 6F 64 69 6E 67 3D 22 55 54 46 2D 38 22 20 73 74 61 6E 64 61 6C 6F 6E 65 3D 22 79 65 73 22 3F 3E 0D 0A 3C 61 73 73 65 6D 62 6C 79 20 78 6D 6C 6E 73 3D 22 75 72 6E 3A 73 63 68 65 6D 61 73 2D 6D 69 63 72 6F 73 6F 66 74 2D 63 6F 6D 3A 61 73 6D 2E 76 31 22 20 6D 61 6E 69 66 65 73 74 56 } //This might be a string? Looks like:tttttt<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\r\n<assembly xmlns="urn:schemas-microsoft-com:asm.v1" manifestV
+		//Benign FP est: -0.0 Malicious FP est: -0.0 Entropy: 5.6486883835099375 Found in 5 files
+		$x6 = { 00 C7 80 84 42 01 10 02 00 00 00 6A 04 58 6B C0 00 8B 0D 00 40 01 10 89 4C 05 F8 6A 04 58 C1 E0 00 8B 0D 04 40 01 10 89 4C 05 F8 68 CC 30 00 10 E8 CC FE FF FF C9 C3 FF 25 64 30 00 10 FF 25 60 30 00 10 CC CC CC CC CC CC CC CC 55 8B EC 8B 45 08 53 8B 48 3C 03 C8 56 0F B7 41 14 0F B7 59 06 83 C0 18 33 D2 03 C1 57 85 DB 74 1B 8B 7D 0C 8B 70 0C 3B FE 72 09 8B 48 08 03 CE 3B F9 72 0A 42 } 
+		//Benign FP est: -0.0 Malicious FP est: -0.0 Entropy: 4.010455497649499 Found in 3 files
+		$x3 = { 74 74 74 74 74 74 74 74 74 74 74 74 74 74 74 74 74 74 74 74 74 74 74 74 74 74 74 74 74 74 74 74 74 74 74 74 52 74 74 74 74 74 01 53 40 52 01 74 41 74 5B 7B 7C 57 52 77 61 78 05 5D 63 72 5D 45 56 4C 77 42 56 58 0C 5B 56 58 73 41 7C 72 7B 5D 57 58 00 43 51 76 77 5C 6F 66 77 4C 51 62 01 52 54 62 01 52 67 70 0C 61 7C 72 04 43 6F 72 60 40 71 64 05 7E 7F 74 74 74 74 74 74 74 74 74 77 64 } //This might be a string? Looks like:ttttttttttttttttttttttttttttttttttttRtttttS@RtAt[{|WRwax]cr]EVLwBVX[VXsA|r{]WXCQvw\ofwLQbRTbRgpa|rCor`@qd~tttttttttwd
+
+		condition:
+(2 of ($x0,$x1) ) or (2 of ($x2,$x3) ) or (3 of ($x4,$x5,$x6) )}

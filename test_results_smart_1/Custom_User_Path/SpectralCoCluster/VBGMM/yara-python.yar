@@ -1,0 +1,12 @@
+rule testrules
+{
+	//Input TP Rate:
+	//3/5
+	strings:
+		//Benign FP est: -0.0 Malicious FP est: -0.0 Entropy: 5.6486883835099375 Found in 5 files
+		$x0 = { 00 C7 80 84 42 01 10 02 00 00 00 6A 04 58 6B C0 00 8B 0D 00 40 01 10 89 4C 05 F8 6A 04 58 C1 E0 00 8B 0D 04 40 01 10 89 4C 05 F8 68 CC 30 00 10 E8 CC FE FF FF C9 C3 FF 25 64 30 00 10 FF 25 60 30 00 10 CC CC CC CC CC CC CC CC 55 8B EC 8B 45 08 53 8B 48 3C 03 C8 56 0F B7 41 14 0F B7 59 06 83 C0 18 33 D2 03 C1 57 85 DB 74 1B 8B 7D 0C 8B 70 0C 3B FE 72 09 8B 48 08 03 CE 3B F9 72 0A 42 } 
+		//Benign FP est: -0.0 Malicious FP est: -0.0 Entropy: 4.010455497649499 Found in 3 files
+		$x1 = { 74 74 74 74 74 74 74 74 74 74 74 74 74 74 74 74 74 74 74 74 74 74 74 74 74 74 74 74 74 74 74 74 74 74 74 74 52 74 74 74 74 74 01 53 40 52 01 74 41 74 5B 7B 7C 57 52 77 61 78 05 5D 63 72 5D 45 56 4C 77 42 56 58 0C 5B 56 58 73 41 7C 72 7B 5D 57 58 00 43 51 76 77 5C 6F 66 77 4C 51 62 01 52 54 62 01 52 67 70 0C 61 7C 72 04 43 6F 72 60 40 71 64 05 7E 7F 74 74 74 74 74 74 74 74 74 77 64 } //This might be a string? Looks like:ttttttttttttttttttttttttttttttttttttRtttttS@RtAt[{|WRwax]cr]EVLwBVX[VXsA|r{]WXCQvw\ofwLQbRTbRgpa|rCor`@qd~tttttttttwd
+
+		condition:
+(2 of ($x0,$x1) )}

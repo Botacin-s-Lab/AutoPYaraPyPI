@@ -1,6 +1,0 @@
-jpype1
-yara-python
-yaramod
-scikit-learn
-numpy
-ppdeep
