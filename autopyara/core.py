@@ -58,6 +58,11 @@ class AutoPYara(PythonInterface):
         self.yara_cluster_legacy.max_filter_size = 10000000
         self.bytes2bloom.tooKeep = ngram_top_k
         self.yaramod = yaramod.Yaramod(yaramod.Features.AllCurrent)
+        
+        # [SETUP] Internal Paths for Flag Resolution
+        self.pkg_path = os.path.dirname(__file__)
+        self.data_path = os.path.join(self.pkg_path, 'data')
+        self.blooms_path = os.path.join(self.data_path, 'blooms')
 
     def build_candidate_set(self, target_dir, bloom_mal_dir, bloom_beg_dir, ngram_size=8):
         return self.yara_cluster.buildCandidateSet(
@@ -92,22 +97,46 @@ class AutoPYara(PythonInterface):
              augmented_target_k=None,
              verbose=False):
 
+        # ==============================================================================
+        # [SMART FLAG HANDLING]
+        # Uses global 'os' module (Shadowing fixed)
+        # ==============================================================================
+        if isinstance(bloom_malicious, str):
+            flag = bloom_malicious.lower()
+            
+            # FLAG 1: "ember" -> Points to .../data/blooms/ember/
+            if flag == 'ember':
+                if verbose: print(f"[AutoPYara] Flag '{flag}' detected. Switching to EMBER filters.")
+                bloom_malicious = os.path.join(self.blooms_path, "ember", "malicious")
+                bloom_benign    = os.path.join(self.blooms_path, "ember", "benign")
+
+            # FLAG 2: "autopyara" -> Points to .../data/blooms/autopyara/
+            elif flag == 'autopyara':
+                if verbose: print(f"[AutoPYara] Flag '{flag}' detected. Switching to DEFAULT (AutoPYara) filters.")
+                bloom_malicious = os.path.join(self.blooms_path, "autopyara", "malicious")
+                bloom_benign    = os.path.join(self.blooms_path, "autopyara", "benign")
+            
+            # FLAG 3: Custom Path (User Provided) -> Keep as is
+            else:
+                pass 
+                
+            # SANITY CHECK
+            if bloom_malicious and not os.path.exists(bloom_malicious):
+                print(f"[!] WARNING: The resolved filter path does not exist:")
+                print(f"    {bloom_malicious}")
+        # ==============================================================================
+
         # --- 1. PREPARE RULE NAME ---
-        # Default to 'autoyara_rule' if user provides nothing
         base_name = "autoyara_rule"
-        
         if rule_name:
-            # Sanitize: Replace spaces/symbols with underscores
             clean_name = re.sub(r'[^a-zA-Z0-9_]', '_', rule_name)
-            # Ensure it doesn't start with a number (YARA syntax error)
             if clean_name and clean_name[0].isdigit():
                 clean_name = "rule_" + clean_name
             base_name = clean_name
-        # ----------------------------
 
         input_files_list = self.ArrayList()
         if isinstance(input_files, str):
-            import os
+            # [FIX] Removed internal 'import os' here to prevent UnboundLocalError
             if os.path.isdir(input_files):
                  for f in os.listdir(input_files):
                       input_files_list.add(self.File(os.path.join(input_files, f)))
@@ -124,8 +153,6 @@ class AutoPYara(PythonInterface):
         self.yara_cluster.malicious_bloom_dir = self.File(bloom_malicious)
         self.yara_cluster.selectionHeuristic = selection_heuristic
         self.yara_cluster.biclusterFeaturePruneCoverage = bicluster_feature_prune_coverage/100
-
-        # Pass name to Java too (for internal logging/files)
         self.yara_cluster.name = base_name
         
         if k_cluster: self.yara_cluster.k = k_cluster
@@ -153,13 +180,11 @@ class AutoPYara(PythonInterface):
             self.yara_cluster.predictorLabels = predictor_labels
 
         try:
-            # 1. EXECUTE JAVA
             with suppress_output(suppress=not verbose):
                 yara_out = dict(self.yara_cluster.pythonRun())
             
             yara_out = self.convert_java_to_python(yara_out)
 
-            # 2. CAPTURE 'k_clusters'
             final_k = None
             if calculated_k is not None: final_k = calculated_k
             elif 'k_clusters' in yara_out: final_k = yara_out['k_clusters']
@@ -173,15 +198,10 @@ class AutoPYara(PythonInterface):
 
             self.yara_cluster.resetYaraState()
             
-            # --- APPLY NAMING FIX ---
             rule_str = yara_out.get('rule_string', '')
             if rule_str:
-                # Java returns "rule 0", "rule 1". 
-                # We regex replace "rule <digits>" with "rule <base_name>_<digits>"
-                # Example: "rule 0" -> "rule autoyara_rule_0"
                 rule_str = re.sub(r'rule\s+(\d+)', f'rule {base_name}_\\1', rule_str)
                 yara_out['rule_string'] = rule_str
-            # ------------------------
 
             if output_format == "string": 
                 yara_out["output"] = rule_str
