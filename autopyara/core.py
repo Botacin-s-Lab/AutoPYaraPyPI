@@ -17,6 +17,7 @@ ClusterAlgorithmType = Literal[
 ]
 RuleOutputType = Literal['yara-python', 'yaramod', 'string']
 SelectionHeuristic = Literal['AutoYara', 'PYara']
+PresetType = Literal['AutoYara', 'AutoPYara']
 
 augmented_algorithms = ['AugmentedKMeansDBSCAN', 'AugmentedKMeansDBSCANSoft', 'AugmentedKMeansVT', 'AugmentedKMeansVTSoft']
 
@@ -83,8 +84,11 @@ class AutoPYara(PythonInterface):
             print(f"Exception during {ngram_size}-gram extraction: {e}")
         self.reset_memory()
 
-    def generate(self, input_files, bloom_malicious, bloom_benign,
+    def generate(self, input_files, 
+             bloom_malicious='ember', # <--- DEFAULT 1: EMBER
+             bloom_benign='ember',    # <--- DEFAULT 2: EMBER
              output_dir=None,
+             preset: PresetType = None,
              bicluster_alg: BiclusterAlgorithmType = 'SpectralCoCluster', 
              cluster_alg: ClusterAlgorithmType = 'VBGMM',
              output_format: RuleOutputType = 'string', 
@@ -98,35 +102,50 @@ class AutoPYara(PythonInterface):
              verbose=False):
 
         # ==============================================================================
-        # [SMART FLAG HANDLING]
-        # Uses global 'os' module (Shadowing fixed)
+        # [PRESET LOGIC]
         # ==============================================================================
-        if isinstance(bloom_malicious, str):
-            flag = bloom_malicious.lower()
+        if preset:
+            if verbose: print(f"[AutoPYara] Applying preset configuration: {preset}")
             
-            # FLAG 1: "ember" -> Points to .../data/blooms/ember/
-            if flag == 'ember':
-                if verbose: print(f"[AutoPYara] Flag '{flag}' detected. Switching to EMBER filters.")
-                bloom_malicious = os.path.join(self.blooms_path, "ember", "malicious")
-                bloom_benign    = os.path.join(self.blooms_path, "ember", "benign")
-
-            # FLAG 2: "autopyara" -> Points to .../data/blooms/autopyara/
-            elif flag == 'autopyara':
-                if verbose: print(f"[AutoPYara] Flag '{flag}' detected. Switching to DEFAULT (AutoPYara) filters.")
-                bloom_malicious = os.path.join(self.blooms_path, "autopyara", "malicious")
-                bloom_benign    = os.path.join(self.blooms_path, "autopyara", "benign")
-            
-            # FLAG 3: Custom Path (User Provided) -> Keep as is
-            else:
-                pass 
+            if preset == "AutoYara":
+                # Standard Mode (VBGMM)
+                # AutoYara naturally generates K. User K is optional.
+                bicluster_alg = 'SpectralCoCluster'
+                cluster_alg = 'VBGMM'
+                bicluster_feature_prune_coverage = 50
+                selection_heuristic = "AutoYara"
                 
-            # SANITY CHECK
-            if bloom_malicious and not os.path.exists(bloom_malicious):
-                print(f"[!] WARNING: The resolved filter path does not exist:")
-                print(f"    {bloom_malicious}")
+            elif preset == "AutoPYara":
+                # Enhanced Mode (Augmented -> KMeans)
+                # We calculate K via DBSCAN and MUST pass it to Java (KMeans)
+                bicluster_alg = 'SpectralCoCluster'
+                cluster_alg = 'AugmentedKMeansDBSCANSoft'
+                bicluster_feature_prune_coverage = 50
+                selection_heuristic = "PYara"
         # ==============================================================================
 
-        # --- 1. PREPARE RULE NAME ---
+        # ==============================================================================
+        # [SMART FLAG HANDLING]
+        # ==============================================================================
+        def resolve_bloom_path(path_arg, filter_type):
+            if isinstance(path_arg, str):
+                flag = path_arg.lower()
+                if flag == 'ember':
+                    if verbose: print(f"[AutoPYara] Using Default EMBER {filter_type} Filters.")
+                    return os.path.join(self.blooms_path, "ember", filter_type)
+                elif flag == 'autopyara':
+                    if verbose: print(f"[AutoPYara] Using AutoPYara {filter_type} Filters.")
+                    return os.path.join(self.blooms_path, "autopyara", filter_type)
+            return path_arg
+
+        bloom_malicious = resolve_bloom_path(bloom_malicious, "malicious")
+        bloom_benign = resolve_bloom_path(bloom_benign, "benign")
+
+        if bloom_malicious and not os.path.exists(bloom_malicious):
+            print(f"[!] WARNING: The resolved filter path does not exist: {bloom_malicious}")
+        # ==============================================================================
+
+        # --- PREPARE RULE NAME ---
         base_name = "autoyara_rule"
         if rule_name:
             clean_name = re.sub(r'[^a-zA-Z0-9_]', '_', rule_name)
@@ -136,7 +155,6 @@ class AutoPYara(PythonInterface):
 
         input_files_list = self.ArrayList()
         if isinstance(input_files, str):
-            # [FIX] Removed internal 'import os' here to prevent UnboundLocalError
             if os.path.isdir(input_files):
                  for f in os.listdir(input_files):
                       input_files_list.add(self.File(os.path.join(input_files, f)))
@@ -155,15 +173,20 @@ class AutoPYara(PythonInterface):
         self.yara_cluster.biclusterFeaturePruneCoverage = bicluster_feature_prune_coverage/100
         self.yara_cluster.name = base_name
         
+        # If user provides K manually, we pass it.
+        # For AutoYara (VBGMM), this is optional (hint).
         if k_cluster: self.yara_cluster.k = k_cluster
+        
         if output_dir: self.yara_cluster.out_dir = output_dir
 
         self.yara_cluster.findBestRulePipelineInit()
 
-        # AUGMENTED K CALCULATION
+        # AUGMENTED K CALCULATION (AutoPYara)
+        # Calculates K in Python -> Passes K to Java (which 'needs' it for KMeans)
         calculated_k = None
         if cluster_alg in augmented_algorithms and not predictor_labels:
-            if k_cluster: raise ValueError("you cannot specify k clusters for Augmented Learning clustering")
+            if k_cluster: 
+                raise ValueError("You cannot specify 'k_cluster' when using AutoPYara preset (Auto-K is active).")
             
             targets = self.convert_java_to_python(self.yara_cluster.targets)
             augmented_predictor = AugmentedDBScan(dbscan_threshold=similarity_threshold, augmented_target_k=augmented_target_k)
@@ -172,7 +195,7 @@ class AutoPYara(PythonInterface):
             self.yara_cluster.k = len(set(predictor_labels))
             calculated_k = self.yara_cluster.k
             if verbose:
-                print("PYARA: calculated k =", self.yara_cluster.k)
+                print(f"PYARA: Automatically calculated k = {self.yara_cluster.k}")
 
         if predictor_labels:
             if len(predictor_labels) != len(self.yara_cluster.targets):

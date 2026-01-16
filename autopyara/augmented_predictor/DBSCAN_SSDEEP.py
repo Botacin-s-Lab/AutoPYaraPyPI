@@ -45,7 +45,10 @@ class AugmentedDBScan():
         hashes = {}
         for file in file_paths:
             try:
-                hashes[file] = ssdeep.hash_from_file(file)
+                # [FIX] Manually open/close file to prevent ResourceWarning
+                with open(file, 'rb') as f:
+                    file_content = f.read()
+                    hashes[file] = ssdeep.hash(file_content)
             except Exception:
                 # Fallback for empty/locked files
                 hashes[file] = None
