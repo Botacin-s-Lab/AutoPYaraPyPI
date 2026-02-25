@@ -21,7 +21,7 @@ class PythonInterface:
             raise RuntimeError(
                 "CRITICAL ERROR: Java is not installed or not found in PATH.\n"
                 "AutoPYara requires a Java Runtime Environment (JRE 11+).\n"
-                "Please install it (e.g., 'sudo apt install default-jre')."
+                "Please install it (e.g., 'sudo apt install default-jre') or use a docker container."
             )
 
     @classmethod
