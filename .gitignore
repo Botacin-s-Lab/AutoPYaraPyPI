@@ -4,3 +4,4 @@ autopyara.egg-info/*
 __pycache__/
 *.pyc
 # *.jar
+autopyara/data/*

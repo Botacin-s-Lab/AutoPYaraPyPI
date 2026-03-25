@@ -2,7 +2,7 @@ import os
 from .core import AutoPYara
 from .download import download_and_extract
 
-# 1. Define where the data should be using standard Python (No pkg_resources!)
+# 1. Define where the data should be using standard Python 
 _ROOT = os.path.dirname(os.path.abspath(__file__))
 _DATA_DIR = os.path.join(_ROOT, "data", "blooms")
 
@@ -10,7 +10,7 @@ _DATA_DIR = os.path.join(_ROOT, "data", "blooms")
 if not os.path.exists(_DATA_DIR):
     print("\n[AutoPYara] ---------------------------------------------------------")
     print("[AutoPYara] First-time setup detected: Bloom filters are missing.")
-    print("[AutoPYara] Downloading necessary data files from GitHub (approx 200MB)...")
+    print("[AutoPYara] Downloading necessary data files anonymously (approx 200MB)...")
     print("[AutoPYara] This only happens once.")
     print("[AutoPYara] ---------------------------------------------------------\n")
     
