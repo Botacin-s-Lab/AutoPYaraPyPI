@@ -63,6 +63,11 @@ Install the package via pip:
 ```bash
 pip install autopyara
 ```
+or using local build 
+
+```bash
+pip install dist/autopyara-*.whl
+```
 
 Note on First Run: To keep the initial installation lightweight, the package requires approximately 200MB of pre-trained Bloom filter data. You do not need to download this manually. The very first time you import and initialize AutoPYara in your code, it will automatically securely download and extract the required data files in the background.
 
