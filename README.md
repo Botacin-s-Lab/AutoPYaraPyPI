@@ -1,4 +1,5 @@
-# AutoPYara
+# AutoPYara Rule Gen
+
 ### Automated, Cluster-Driven YARA Rule Generation
 
 [![PyPI version](https://img.shields.io/pypi/v/autopyara.svg)](https://pypi.org/project/autopyara/)
