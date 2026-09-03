@@ -19,9 +19,6 @@ Automatically discover malware families and generate high-quality, tightly scope
 
 ---
 
-> [!NOTE]
-> `autopyara` hasn't shipped its first release yet, so the PyPI-sourced badges above will show as unavailable until then — they'll light up automatically on the first publish. See [Releasing](RELEASING.md).
-
 ## 📌 Overview
 
 **AutoPYara** is a Python framework for automated YARA rule generation from collections of malware samples. It combines:

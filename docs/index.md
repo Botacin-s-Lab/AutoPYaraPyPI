@@ -14,6 +14,8 @@ The result: cluster-aware, precision-engineered YARA signatures with minimal man
 !!! info "This site is a work in progress"
     This documentation is intentionally basic for now — installation, a quick start, and the full API reference. More material (including the accompanying paper, once published) will land here over time.
 
+AutoPYara is [live on PyPI](https://pypi.org/project/autopyara/) — `pip install autopyara` to get started.
+
 ## How it works
 
 ```mermaid
