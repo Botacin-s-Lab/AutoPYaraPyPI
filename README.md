@@ -1,21 +1,30 @@
-# AutoPYara Rule Gen
+<div align="center">
 
-### Automated, Cluster-Driven YARA Rule Generation
+# AutoPYara
+
+**Automated, Cluster-Driven YARA Rule Generation**
 
 [![PyPI version](https://img.shields.io/pypi/v/autopyara.svg)](https://pypi.org/project/autopyara/)
 [![Python Versions](https://img.shields.io/pypi/pyversions/autopyara.svg)](https://pypi.org/project/autopyara/)
-[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
-[![Downloads](https://img.shields.io/pypi/dm/autopyara.svg)](https://pypi.org/project/autopyara/)
+[![Downloads](https://img.shields.io/pypi/dm/autopyara.svg)](https://pypistats.org/packages/autopyara)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![Docs](https://github.com/Botacin-s-Lab/AutoPYaraPyPI/actions/workflows/docs.yml/badge.svg)](https://botacin-s-lab.github.io/AutoPYaraPyPI/)
+[![Release Pipeline](https://github.com/Botacin-s-Lab/AutoPYaraPyPI/actions/workflows/release.yml/badge.svg)](https://github.com/Botacin-s-Lab/AutoPYaraPyPI/actions/workflows/release.yml)
 
-> Automatically discover malware families and generate high-quality, tightly scoped YARA rules using probabilistic clustering and Bloom-filtered n-gram analysis.
+Automatically discover malware families and generate high-quality, tightly scoped YARA rules using probabilistic clustering and Bloom-filtered n-gram analysis.
+
+[**Documentation**](https://botacin-s-lab.github.io/AutoPYaraPyPI/) · [PyPI](https://pypi.org/project/autopyara/) · [Report a Bug](https://github.com/Botacin-s-Lab/AutoPYaraPyPI/issues) · [Releasing](RELEASING.md)
+
+</div>
 
 ---
 
+> [!NOTE]
+> `autopyara` hasn't shipped its first release yet, so the PyPI-sourced badges above will show as unavailable until then — they'll light up automatically on the first publish. See [Releasing](RELEASING.md).
+
 ## 📌 Overview
 
-**AutoPYara** is a Python framework for automated YARA rule generation from collections of malware samples.
-
-It combines:
+**AutoPYara** is a Python framework for automated YARA rule generation from collections of malware samples. It combines:
 
 - Variational Bayesian Gaussian Mixture Models (VBGMM)
 - Augmented DBSCAN with centroid refinement
@@ -24,39 +33,24 @@ It combines:
 
 The result: **cluster-aware, precision-engineered YARA signatures** with minimal manual effort.
 
----
+## 🧠 How it works
 
-## 🧠 Architecture
-
-```text
-Malware Samples
-      │
-      ▼
-Byte n-gram Extraction
-      │
-      ▼
-Bloom Filter Isolation
-(benign removal + malicious focus)
-      │
-      ▼
-Clustering Engine
-(VBGMM or Augmented DBSCAN)
-      │
-      ▼
-Cluster-Specific Signature Construction
-      │
-      ▼
-High-Quality YARA Rules
+```mermaid
+flowchart TD
+    A[Malware Samples] --> B[Byte n-gram Extraction]
+    B --> C["Bloom Filter Isolation<br/>(benign removal + malicious focus)"]
+    C --> D["Clustering Engine<br/>(VBGMM or Augmented DBSCAN)"]
+    D --> E[Cluster-Specific Signature Construction]
+    E --> F[High-Quality YARA Rules]
 ```
 
-## Features
-* **Automated Clustering:** Group similar malware samples together automatically to create concise, targeted rules.
-* **Two Core Presets:** Use the standard `AutoYara` (VBGMM) approach or the enhanced `AutoPYara` (Augmented DBSCAN) pipeline.
-* **Built-in Bloom Filters:** Ships with pre-trained EMBER and AutoPYara bloom filters to efficiently filter out benign n-grams.
-* **Multiple Output Formats:** Return rules as raw strings, compiled `yara-python` objects, or `yaramod` parsed objects.
-* **Custom Training:** Train your own custom bloom filters on proprietary datasets.
+## ✨ Features
 
----
+* **Automated Clustering** — group similar malware samples together automatically to create concise, targeted rules.
+* **Two Core Presets** — the standard `AutoYara` (VBGMM) approach, or the enhanced `AutoPYara` (Augmented DBSCAN) pipeline.
+* **Built-in Bloom Filters** — ships with pre-trained EMBER and AutoPYara filters to efficiently filter out benign n-grams.
+* **Multiple Output Formats** — raw strings, compiled `yara-python` objects, or `yaramod` parsed objects.
+* **Custom Training** — train your own Bloom filters on proprietary datasets.
 
 ## 🚀 Installation
 
@@ -65,23 +59,33 @@ High-Quality YARA Rules
 * Python >= 3.9
 * A **Java Runtime Environment (JRE 11+)** on `PATH` or pointed to by `JAVA_HOME`. AutoPYara's clustering/rule-generation backend runs inside a JVM. `pip install` itself doesn't need Java, but `AutoPYara()` will raise a clear error the first time you construct it without one — install a JRE before you actually use the tool. On Debian/Ubuntu: `sudo apt install default-jre`.
 
-Install the package via pip:
 ```bash
 pip install autopyara
 ```
-or from a local build:
+
+<details>
+<summary>Install from a local build instead</summary>
+
 ```bash
 python -m build
 pip install dist/autopyara-*.whl
 ```
 
-**Note on first run:** to keep the initial install lightweight, the package needs about 600MB of pre-trained Bloom filter data that isn't bundled in the distribution. You don't need to fetch this manually — the first time you `import autopyara` and the data is missing, it's downloaded automatically from the [`data-branch`](https://github.com/Botacin-s-Lab/AutoPYaraPyPI/tree/data-branch) branch of this repository. To trigger it explicitly (e.g. to pre-warm a Docker image), run:
+</details>
+
+<details>
+<summary>Note on first run: the Bloom filter data (~600MB)</summary>
+
+To keep the initial install lightweight, the package needs about 600MB of pre-trained Bloom filter data that isn't bundled in the distribution. You don't need to fetch this manually — the first time you `import autopyara` and the data is missing, it's downloaded automatically from the [`data-branch`](https://github.com/Botacin-s-Lab/AutoPYaraPyPI/tree/data-branch) branch of this repository. To trigger it explicitly (e.g. to pre-warm a Docker image):
+
 ```bash
 autopyara-download
 ```
 
+</details>
 
-# Quick Start
+## ⚡ Quick Start
+
 Generating your first YARA rule is as simple as pointing the tool at a directory of malware samples.
 
 ```python
@@ -104,37 +108,31 @@ print("\nGenerated YARA Rule:")
 print(results['rule_string'])
 ```
 
+<details>
+<summary><strong>⚙️ Core presets</strong></summary>
 
+#### `preset="AutoYara"` (Standard)
 
-# ⚙️ Core Presets
+**Algorithm:** Variational Bayesian Gaussian Mixture Model (VBGMM)
 
-AutoPYara abstracts complex clustering pipelines into easy-to-use presets via the `preset` argument in the `generate()` method.
+**Behavior:** Automatically infers the number of clusters ($K$) probabilistically.
 
----
+**Best for:** General-purpose rule generation where the structural diversity of the input directory is completely unknown.
 
-## 1️⃣ `preset="AutoYara"` (Standard)
+#### `preset="AutoPYara"` (Enhanced)
 
-**Algorithm:** Variational Bayesian Gaussian Mixture Model (VBGMM)  
+**Algorithm:** Augmented DBSCAN combined with KMeans soft clustering
 
-**Behavior:** Automatically infers the number of clusters ($K$) probabilistically.  
+**Behavior:** Uses a custom Augmented DBSCAN to calculate $K$ prior to centroid optimization.
 
-**Best For:** General-purpose rule generation where the structural diversity of the input directory is completely unknown.
+**Best for:** Producing more tightly bound rules for closely related malware families.
 
----
+</details>
 
-## 2️⃣ `preset="AutoPYara"` (Enhanced)
+<details>
+<summary><strong>🛠 Advanced usage</strong></summary>
 
-**Algorithm:** Augmented DBSCAN combined with KMeans Soft Clustering  
-
-**Behavior:** Uses a custom Augmented DBSCAN to calculate $K$ prior to centroid optimization.  
-
-**Best For:** Producing more tightly bound rules for closely related malware families.
-
----
-
-# 🛠 Advanced Usage
-
-## Defining Custom $K$ Clusters
+#### Defining a custom $K$
 
 If you want to manually force the algorithm to split your samples into a specific number of clusters, you can override the presets:
 
@@ -147,8 +145,10 @@ results = tool.generate(
 )
 ```
 
-## Different Output Formats
-By default, AutoPYara returns a raw string. However, you can integrate it directly into existing analysis pipelines by requesting Python objects:
+#### Output formats
+
+By default, AutoPYara returns a raw string. You can integrate it directly into existing analysis pipelines by requesting Python objects instead:
+
 ```python
 # Returns a compiled yara-python object ready for immediate scanning
 results = tool.generate(
@@ -160,11 +160,11 @@ compiled_rule = results["output"]
 matches = compiled_rule.match("/path/to/suspicious/file.exe")
 ```
 
-Supported formats: 'string', 'yara-python', and 'yaramod'.
+Supported formats: `'string'`, `'yara-python'`, and `'yaramod'`.
 
+#### Custom Bloom filters
 
-## Using Custom Bloom Filters
-The generate() function defaults to using the built-in "ember" bloom filters for both benign and malicious data. You can switch to the "autopyara" defaults, or provide absolute paths to your own retrained filters:
+`generate()` defaults to the built-in `"ember"` Bloom filters for both benign and malicious data. You can switch to the `"autopyara"` defaults, or provide absolute paths to your own retrained filters:
 
 ```python
 results = tool.generate(
@@ -174,9 +174,9 @@ results = tool.generate(
 )
 ```
 
+#### Training new Bloom filters
 
-Training New Bloom Filters
-You can train custom bloom filters on your own proprietary benign or malicious datasets using the train() method:
+Train custom Bloom filters on your own proprietary benign or malicious datasets with `train()`:
 
 ```python
 tool = AutoPYara()
@@ -189,8 +189,10 @@ tool.train(
 )
 ```
 
+</details>
 
-# 📚 API Reference: `generate()`
+<details>
+<summary><strong>📚 Full API reference: <code>generate()</code></strong></summary>
 
 | Parameter | Type | Default | Description |
 |------------|------|----------|-------------|
@@ -204,7 +206,11 @@ tool.train(
 | `augmented_target_k` | `int` | `None` | Hardcode target $K$ for the Augmented DBSCAN pipeline. |
 | `verbose` | `bool` | `False` | Enable detailed logging during cluster generation. |
 
----
+</details>
+
+## 📖 Documentation
+
+Full documentation lives at **[botacin-s-lab.github.io/AutoPYaraPyPI](https://botacin-s-lab.github.io/AutoPYaraPyPI/)**. It's intentionally basic for now — installation, quick start, and the API reference — with more material (including the accompanying paper, once published) landing there over time.
 
 ## 🧪 Development
 
@@ -213,6 +219,10 @@ pip install -e ".[test]"
 pytest tests/
 ```
 
-`tests/test_core_helpers.py` and `tests/test_augmented_dbscan.py` are pure-Python unit tests (no JVM/network needed). `tests/test_smoke_generate.py` runs the real pipeline end-to-end against small synthetic dummy files (not real malware) using the built-in bloom filters, so it needs a JRE and the bloom filter data to already be present.
+`tests/test_core_helpers.py` and `tests/test_augmented_dbscan.py` are pure-Python unit tests (no JVM/network needed). `tests/test_smoke_generate.py` runs the real pipeline end-to-end against small synthetic dummy files (not real malware) using the built-in Bloom filters.
 
 See [RELEASING.md](RELEASING.md) for how versioning and PyPI publishing work.
+
+## License
+
+MIT — see [LICENSE](LICENSE).

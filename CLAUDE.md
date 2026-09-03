@@ -44,7 +44,11 @@ print(results["rule_string"])
 
 ### Release automation
 
-[.github/workflows/release.yml](.github/workflows/release.yml) triggers on push to `main` whose commit message contains "New version" (case-insensitive): runs the test matrix (Python 3.9–3.12, installing the built **wheel** and running the full `tests/` suite against a real JVM — this is the actual pre-publish functional gate), then — only if that passes on every version — auto-bumps the patch version in `setup.py` via [.github/scripts/bump_version.py](.github/scripts/bump_version.py), commits, tags `vX.Y.Z`, builds sdist + wheel, and publishes both to PyPI with `PYPI_API_TOKEN`. Full details, including one-time repo setup, in [RELEASING.md](RELEASING.md) — read that before touching the workflow or `setup.py`'s version-parsing assumptions.
+[.github/workflows/release.yml](.github/workflows/release.yml) triggers on push to `main` whose commit **subject line** (first line only — not the body) contains "New version" (case-insensitive): runs the test matrix (Python 3.9–3.12, installing the built **wheel** and running the full `tests/` suite against a real JVM — this is the actual pre-publish functional gate), then — only if that passes on every version — auto-bumps the patch version in `setup.py` via [.github/scripts/bump_version.py](.github/scripts/bump_version.py), commits, tags `vX.Y.Z`, builds sdist + wheel, and publishes both to PyPI with `PYPI_API_TOKEN`. Full details, including one-time repo setup, in [RELEASING.md](RELEASING.md) — read that before touching the workflow or `setup.py`'s version-parsing assumptions. **Subject-line-only is deliberate:** matching the full message once caused a real false-positive release trigger when a commit body described this very phrase in prose — never revert that to a whole-message match.
+
+### Documentation site
+
+The docs at [botacin-s-lab.github.io/AutoPYaraPyPI](https://botacin-s-lab.github.io/AutoPYaraPyPI/) are built from [mkdocs.yml](mkdocs.yml) + [docs/](docs/) with MkDocs Material, and deployed by [.github/workflows/docs.yml](.github/workflows/docs.yml) — independent of the release workflow, triggered by changes to `docs/`, `mkdocs.yml`, or the workflow file itself (or manually via `workflow_dispatch`), regardless of commit message. Requires the repo's **Settings → Pages → Build and deployment → Source** to be set to "GitHub Actions" (one-time, manual — not something a workflow can do to itself). Preview locally with `pip install -r docs/requirements.txt && mkdocs serve`.
 
 ## Architecture
 
