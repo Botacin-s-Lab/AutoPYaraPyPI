@@ -68,9 +68,15 @@ jobs:
     needs: [gate, test]
     runs-on: ubuntu-latest
     steps:
+      # Authenticates as RELEASE_PAT (a fine-grained PAT held by a repo
+      # admin), not the default GITHUB_TOKEN. main requires PRs from
+      # everyone except the "Repository admin" bypass entry in its
+      # ruleset -- the default GITHUB_TOKEN's push identity doesn't hold
+      # that role, so it would be rejected. See RELEASING.md.
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          token: ${{ secrets.RELEASE_PAT }}
 
       - uses: actions/setup-python@v5
         with:
