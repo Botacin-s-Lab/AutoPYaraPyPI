@@ -26,3 +26,7 @@ Publishing to PyPI is fully automated: pushing a commit to `main` whose **subjec
 - **"New version"** → minor bump (`0.1.5` → `0.2.0`)
 
 See [RELEASING.md](https://github.com/Botacin-s-Lab/AutoPYaraPyPI/blob/main/RELEASING.md) in the repository for the full runbook.
+
+## Contributing
+
+`main` isn't open to direct pushes — every change, including from maintainers, goes through a pull request that's automatically built and tested, then reviewed. See [CONTRIBUTING.md](https://github.com/Botacin-s-Lab/AutoPYaraPyPI/blob/main/CONTRIBUTING.md) in the repository for the full flow.

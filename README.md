@@ -220,6 +220,10 @@ pytest tests/
 
 See [RELEASING.md](RELEASING.md) for how versioning and PyPI publishing work.
 
+## 🤝 Contributing
+
+We're accepting contributions — if you run into an issue or have a fix, fork the repo, open a PR against `main`, and we'll take a look. PRs are automatically built and tested; once checks pass and a maintainer approves, it gets merged. `main` itself isn't open to direct pushes from anyone (including maintainers) — everything goes through review. See [CONTRIBUTING.md](CONTRIBUTING.md) for details.
+
 ## License
 
 MIT — see [LICENSE](LICENSE).

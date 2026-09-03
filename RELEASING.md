@@ -7,8 +7,23 @@ Publishing to PyPI is automated by [.github/workflows/release.yml](.github/workf
 1. **Create a PyPI API token** and add it to this repo as a GitHub Actions secret named `PYPI_API_TOKEN`.
    - `autopyara` has not been published yet, so the token must be scoped to your **entire PyPI account** (an existing-project-scoped token isn't possible until after the first upload). Once the first release lands, you can go back and re-scope/replace it with a project-scoped token for `autopyara` if you'd rather not keep an account-wide token around.
    - Add it at: repo **Settings → Secrets and variables → Actions → New repository secret**, name `PYPI_API_TOKEN`.
-2. **Confirm `main` allows the release workflow to push directly to it.** The `release` job commits a version bump and pushes a tag straight to `main` using the default `GITHUB_TOKEN`. If branch protection on `main` requires pull requests or blocks the `github-actions[bot]` actor, that push will fail — either relax the rule for this workflow, or add an exception allowing the Actions bot (or a PAT with bypass rights) to push.
+2. **Set up the branch protection ruleset described below** so `main` requires PRs from everyone *except* the release automation. Skipping this either leaves `main` open to direct pushes from anyone with write access, or (if you set up protection some other way without the bypass entry) breaks the `release` job's version-bump push.
 3. That's it — no PyPI "trusted publisher" registration is needed since this uses a token, not OIDC.
+
+## Branch protection: PRs required, except for the release bot
+
+Goal: nobody — not outside contributors, not org members — pushes directly to `main`. The one deliberate exception is the release automation's version-bump commit, which must keep working. This needs a modern GitHub **Ruleset** (not the older "branch protection rules" UI, which can't scope a bypass to just the GitHub Actions app cleanly):
+
+1. Go to the repo's **Settings → Rules → Rulesets → New ruleset → New branch ruleset**.
+2. **Enforcement status:** Active.
+3. **Target branches:** Include default branch (`main`).
+4. **Bypass list:** add the **GitHub Actions** app, so the release job's `GITHUB_TOKEN`-driven push can still land directly. Do not add any human accounts here — the whole point is that humans (including org members) always go through a PR.
+5. Enable these rules:
+   - **Require a pull request before merging**, with **required approvals: 1**.
+   - **Require status checks to pass** — add the check(s) produced by [.github/workflows/pr-checks.yml](.github/workflows/pr-checks.yml) (job `test`, matrixed across Python 3.9–3.12, so you'll see one check per version, e.g. `test / test (3.9)`). Note: a status check only becomes selectable in this UI after it has run at least once — open one throwaway PR first if the list is empty.
+   - **Block force pushes** and **Restrict deletions** (standard hygiene, not strictly required by anything above).
+
+With this in place: an outside contributor forks the repo, pushes to their fork, and opens a PR against `main` — [pr-checks.yml](.github/workflows/pr-checks.yml) runs the full build+install+test suite on it automatically (no secrets exposed to fork PRs — it runs on plain `pull_request`, which GitHub gives a read-only token for forks regardless of what the workflow requests). Once a maintainer approves and the checks are green, merging is allowed. The `release` job's direct push to `main` keeps working because of the bypass entry above.
 
 ## How a release happens
 

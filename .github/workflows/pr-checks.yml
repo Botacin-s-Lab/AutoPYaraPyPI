@@ -1,0 +1,15 @@
+name: PR Checks
+
+# Tests every pull request targeting main -- no publish step, just the same
+# build+install+test suite the release pipeline runs (see build-and-test.yml).
+# Runs on plain `pull_request` (not `pull_request_target`), so PRs from
+# forks automatically get a read-only token and no access to secrets like
+# PYPI_API_TOKEN -- this workflow only ever reads and tests, it never needs
+# write access or credentials.
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    uses: ./.github/workflows/build-and-test.yml
