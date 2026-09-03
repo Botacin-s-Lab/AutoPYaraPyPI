@@ -223,3 +223,11 @@ See [RELEASING.md](RELEASING.md) for how versioning and PyPI publishing work.
 ## License
 
 MIT — see [LICENSE](LICENSE).
+
+---
+
+<div align="center">
+
+Maintained by Mabon Ninan, Texas A&M University — [ninanmm@tamu.edu](mailto:ninanmm@tamu.edu)
+
+</div>

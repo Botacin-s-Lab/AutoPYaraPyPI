@@ -20,6 +20,9 @@ Produces both a wheel and an sdist under `dist/`.
 
 ## How releases are published
 
-Publishing to PyPI is fully automated: pushing a commit to `main` whose **subject line** contains "New version" runs the full test matrix, and only if it passes does it bump the version, tag, build, and publish.
+Publishing to PyPI is fully automated: pushing a commit to `main` whose **subject line** contains a trigger phrase runs the full test matrix, and only if it passes does it bump the version, tag, build, and publish.
+
+- **"New subversion"** → patch bump (`0.1.5` → `0.1.6`)
+- **"New version"** → minor bump (`0.1.5` → `0.2.0`)
 
 See [RELEASING.md](https://github.com/Botacin-s-Lab/AutoPYaraPyPI/blob/main/RELEASING.md) in the repository for the full runbook.

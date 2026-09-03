@@ -1,8 +1,10 @@
 name: Release
 
 # Fires on every push to main; the `gate` job below decides whether the head
-# commit actually asked for a release (message contains "New version",
-# case-insensitively). Everything downstream is skipped otherwise.
+# commit's SUBJECT line asked for a release, and which kind:
+#   "New subversion" -> patch bump   (0.1.5 -> 0.1.6)
+#   "New version"     -> minor bump  (0.1.5 -> 0.2.0)
+# Everything downstream is skipped if neither phrase is present.
 on:
   push:
     branches: [main]
@@ -25,8 +27,9 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       should_release: ${{ steps.check.outputs.should_release }}
+      bump_type: ${{ steps.check.outputs.bump_type }}
     steps:
-      - name: Check commit message for the "New version" trigger
+      - name: Check commit subject for a release trigger
         id: check
         env:
           # Passed via env, not interpolated into the script body: a crafted
@@ -35,17 +38,29 @@ jobs:
         run: |
           # Only the SUBJECT line (first line) is checked, not the full
           # message body. A body/changelog describing this workflow will
-          # almost inevitably mention the phrase "New version" in prose
-          # (e.g. "the gate checks for 'New version' in the commit message")
-          # -- matching against the whole message caused exactly that
+          # almost inevitably mention these trigger phrases in prose (e.g.
+          # "the gate checks for 'New version' in the commit message") --
+          # matching against the whole message caused exactly that
           # self-referential false trigger once already.
+          #
+          # "new subversion" is checked first: it contains "version" as a
+          # substring but NOT the substring "new version" (there's no space
+          # before "version" in "subversion"), so the two are mutually
+          # exclusive and order doesn't actually matter here -- but checking
+          # the more specific phrase first keeps that guarantee obvious.
           SUBJECT=$(printf '%s' "$COMMIT_MSG" | head -n1 | tr '[:upper:]' '[:lower:]')
-          if [[ "$SUBJECT" == *"new version"* ]]; then
+          if [[ "$SUBJECT" == *"new subversion"* ]]; then
             echo "should_release=true" >> "$GITHUB_OUTPUT"
-            echo "Commit subject contains 'New version' -> will release."
+            echo "bump_type=patch" >> "$GITHUB_OUTPUT"
+            echo "Commit subject contains 'New subversion' -> patch release."
+          elif [[ "$SUBJECT" == *"new version"* ]]; then
+            echo "should_release=true" >> "$GITHUB_OUTPUT"
+            echo "bump_type=minor" >> "$GITHUB_OUTPUT"
+            echo "Commit subject contains 'New version' -> minor release."
           else
             echo "should_release=false" >> "$GITHUB_OUTPUT"
-            echo "Commit subject does not contain 'New version' -> skipping release."
+            echo "bump_type=" >> "$GITHUB_OUTPUT"
+            echo "No release trigger phrase in commit subject -> skipping release."
           fi
 
   test:
@@ -115,7 +130,7 @@ jobs:
         run: python -m pytest tests/ -v
 
   release:
-    needs: test
+    needs: [gate, test]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -126,9 +141,9 @@ jobs:
         with:
           python-version: "3.11"
 
-      - name: Bump patch version in setup.py
+      - name: Bump version in setup.py
         id: bump
-        run: echo "version=$(python .github/scripts/bump_version.py)" >> "$GITHUB_OUTPUT"
+        run: echo "version=$(python .github/scripts/bump_version.py ${{ needs.gate.outputs.bump_type }})" >> "$GITHUB_OUTPUT"
 
       - name: Commit and tag the release
         run: |

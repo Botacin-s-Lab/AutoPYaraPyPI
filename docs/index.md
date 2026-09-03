@@ -1,6 +1,23 @@
+---
+title: AutoPYara — Automated YARA Rule Generation
+hide:
+  - navigation
+  - toc
+---
+
+<div class="hero" markdown>
+
+![AutoPYara](images/favicon.svg){ .hero-logo }
+
 # AutoPYara
 
-**Automated, Cluster-Driven YARA Rule Generation**
+<p class="tagline">Automated, Cluster-Driven YARA Rule Generation</p>
+
+[Get Started :material-arrow-right:](installation.md){ .md-button .md-button--primary }
+[View on GitHub :fontawesome-brands-github:](https://github.com/Botacin-s-Lab/AutoPYaraPyPI){ .md-button }
+[PyPI :fontawesome-brands-python:](https://pypi.org/project/autopyara/){ .md-button }
+
+</div>
 
 AutoPYara is a Python framework for automated YARA rule generation from collections of malware samples. It combines:
 
@@ -29,11 +46,34 @@ flowchart TD
 
 ## Features
 
-- **Automated clustering** — group similar malware samples together automatically to create concise, targeted rules.
-- **Two core presets** — the standard `AutoYara` (VBGMM) approach, or the enhanced `AutoPYara` (Augmented DBSCAN) pipeline.
-- **Built-in Bloom filters** — ships with pre-trained EMBER and AutoPYara filters to efficiently filter out benign n-grams.
-- **Multiple output formats** — raw strings, compiled `yara-python` objects, or `yaramod` parsed objects.
-- **Custom training** — train your own Bloom filters on proprietary datasets.
+<div class="feature-grid" markdown>
+
+<div markdown>
+### :material-cog-sync: Automated clustering
+Group similar malware samples together automatically to create concise, targeted rules.
+</div>
+
+<div markdown>
+### :material-swap-horizontal: Two core presets
+The standard `AutoYara` (VBGMM) approach, or the enhanced `AutoPYara` (Augmented DBSCAN) pipeline.
+</div>
+
+<div markdown>
+### :material-filter-variant: Built-in Bloom filters
+Ships with pre-trained EMBER and AutoPYara filters to efficiently filter out benign n-grams.
+</div>
+
+<div markdown>
+### :material-file-export: Multiple output formats
+Raw strings, compiled `yara-python` objects, or `yaramod` parsed objects.
+</div>
+
+<div markdown>
+### :material-school: Custom training
+Train your own Bloom filters on proprietary datasets.
+</div>
+
+</div>
 
 ## Where to go next
 
@@ -41,9 +81,3 @@ flowchart TD
 - [Quick Start](quickstart.md) — generate your first YARA rule.
 - [API Reference](api.md) — presets, advanced usage, and the full `generate()` parameter table.
 - [Development & Releasing](development.md) — running the tests and how releases are published.
-
-## Links
-
-- [PyPI project](https://pypi.org/project/autopyara/)
-- [Source code](https://github.com/Botacin-s-Lab/AutoPYaraPyPI)
-- [Issue tracker](https://github.com/Botacin-s-Lab/AutoPYaraPyPI/issues)

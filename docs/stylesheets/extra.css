@@ -1,0 +1,57 @@
+/* Hero section on the homepage (docs/index.md's first block, wrapped in
+   <div class="hero">). Kept minimal and theme-aware -- no hardcoded
+   backgrounds that would fight light/dark mode. */
+
+.hero {
+  text-align: center;
+  padding: 2.4rem 1rem 1.6rem;
+  margin-bottom: 1rem;
+  border-bottom: 1px solid var(--md-default-fg-color--lightest);
+}
+
+.hero img.hero-logo {
+  width: 72px;
+  height: 72px;
+  margin-bottom: 0.75rem;
+}
+
+.hero h1 {
+  margin: 0 0 0.4rem;
+  font-size: 2.2rem;
+}
+
+.hero p.tagline {
+  font-size: 1.15rem;
+  color: var(--md-default-fg-color--light);
+  margin: 0 0 1.4rem;
+}
+
+.hero .md-button {
+  margin: 0.2rem 0.35rem;
+}
+
+/* Feature grid on the homepage: a simple auto-fit card layout, no JS. */
+.feature-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1rem;
+  margin: 1.5rem 0 2rem;
+}
+
+.feature-grid > div {
+  border: 1px solid var(--md-default-fg-color--lightest);
+  border-radius: 0.5rem;
+  padding: 1rem 1.1rem;
+}
+
+.feature-grid h3 {
+  margin-top: 0;
+  font-size: 1.05rem;
+}
+
+/* Slightly rounder, softer code blocks and admonitions for a less
+   boxy feel. */
+.md-typeset pre > code,
+.md-typeset .admonition {
+  border-radius: 0.4rem;
+}

@@ -16,28 +16,47 @@ nav:
 
 theme:
   name: material
+  icon:
+    logo: material/radar
+    repo: fontawesome/brands/github
+  favicon: images/favicon.svg
+  font:
+    text: Inter
+    code: JetBrains Mono
   palette:
     - media: "(prefers-color-scheme: light)"
       scheme: default
       primary: indigo
+      accent: teal
       toggle:
-        icon: material/brightness-7
+        icon: material/weather-sunny
         name: Switch to dark mode
     - media: "(prefers-color-scheme: dark)"
       scheme: slate
       primary: indigo
+      accent: teal
       toggle:
-        icon: material/brightness-4
+        icon: material/weather-night
         name: Switch to light mode
   features:
     - navigation.tabs
     - navigation.top
     - navigation.indexes
+    - navigation.tracking
+    - navigation.instant
+    - navigation.instant.progress
+    - toc.follow
     - search.suggest
+    - search.highlight
     - content.code.copy
     - content.action.edit
 
+extra_css:
+  - stylesheets/extra.css
+
 markdown_extensions:
+  - attr_list
+  - md_in_html
   - admonition
   - tables
   - toc:
@@ -48,6 +67,13 @@ markdown_extensions:
         - name: mermaid
           class: mermaid
           format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
+
+copyright: >
+  Maintained by Mabon Ninan, Texas A&amp;M University —
+  <a href="mailto:ninanmm@tamu.edu">ninanmm@tamu.edu</a>
 
 extra:
   social:
