@@ -1,4 +1,6 @@
 include README.md
+include RELEASING.md
 include requirements.txt
 recursive-include autopyara/jars *
+recursive-include tests *.py
 #recursive-include autopyara/data *

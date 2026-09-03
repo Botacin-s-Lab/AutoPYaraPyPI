@@ -1,5 +1,17 @@
 from setuptools import setup, find_packages
 
+# Note: AutoPYara requires a JRE (11+) at runtime (see autopyara/interface.py's
+# PythonInterface._check_java_installed(), which raises a clear error the
+# first time AutoPYara() is constructed without one). That check intentionally
+# does NOT run here at install time: this package ships both an sdist and a
+# wheel, so most installs never execute this file at all, and gating pip
+# install on Java would be inconsistent (wheel installs would skip it anyway)
+# and unnecessarily block installing the package on a machine that will only
+# run it elsewhere (e.g. building a Docker image). Full functional
+# correctness (a real JVM run against the built package) is instead verified
+# in CI before every release — see .github/workflows/release.yml and
+# RELEASING.md.
+
 setup(
     name="autopyara",
     version="0.1.0",
@@ -7,26 +19,26 @@ setup(
     long_description=open("README.md").read(),
     long_description_content_type="text/markdown",
     author="GIA MTech",
-    packages=find_packages(),
-    include_package_data=True,  
-    
-    # --- Restored: Registers the command line tool ---
+    packages=find_packages(exclude=("tests", "tests.*")),
+    include_package_data=True,
+
     entry_points={
         'console_scripts': [
             'autopyara-download=autopyara.download:download_and_extract',
         ],
     },
-    # ---------------------------------------------
 
     install_requires=[
         "jpype1",
         "yara-python",
         "yaramod",
-        "scikit-learn>=1.0",  
-        "numpy>=1.20,<2.0",   
-        "packaging>=20.0",    
+        "scikit-learn>=1.0",
+        "numpy>=1.20,<2.0",
+        "packaging>=20.0",
         "ppdeep"
     ],
+    extras_require={
+        "test": ["pytest"],
+    },
     python_requires='>=3.8',
 )
-

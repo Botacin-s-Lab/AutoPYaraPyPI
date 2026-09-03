@@ -1,4 +1,5 @@
 build/*
+dist/*
 autopyara.egg-info/*
 .pytest_cache/
 __pycache__/

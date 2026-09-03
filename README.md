@@ -59,17 +59,25 @@ High-Quality YARA Rules
 
 ## 🚀 Installation
 
+### Requirements
+
+* Python >= 3.8
+* A **Java Runtime Environment (JRE 11+)** on `PATH` or pointed to by `JAVA_HOME`. AutoPYara's clustering/rule-generation backend runs inside a JVM. `pip install` itself doesn't need Java, but `AutoPYara()` will raise a clear error the first time you construct it without one — install a JRE before you actually use the tool. On Debian/Ubuntu: `sudo apt install default-jre`.
+
 Install the package via pip:
 ```bash
 pip install autopyara
 ```
-or using local build 
-
+or from a local build:
 ```bash
+python -m build
 pip install dist/autopyara-*.whl
 ```
 
-Note on First Run: To keep the initial installation lightweight, the package requires approximately 200MB of pre-trained Bloom filter data. You do not need to download this manually. The very first time you import and initialize AutoPYara in your code, it will automatically securely download and extract the required data files in the background.
+**Note on first run:** to keep the initial install lightweight, the package needs about 600MB of pre-trained Bloom filter data that isn't bundled in the distribution. You don't need to fetch this manually — the first time you `import autopyara` and the data is missing, it's downloaded automatically from the [`data-branch`](https://github.com/Botacin-s-Lab/AutoPYaraPyPI/tree/data-branch) branch of this repository. To trigger it explicitly (e.g. to pre-warm a Docker image), run:
+```bash
+autopyara-download
+```
 
 
 # Quick Start
@@ -196,3 +204,14 @@ tool.train(
 | `verbose` | `bool` | `False` | Enable detailed logging during cluster generation. |
 
 ---
+
+## 🧪 Development
+
+```bash
+pip install -e ".[test]"
+pytest tests/
+```
+
+`tests/test_core_helpers.py` and `tests/test_augmented_dbscan.py` are pure-Python unit tests (no JVM/network needed). `tests/test_smoke_generate.py` runs the real pipeline end-to-end against small synthetic dummy files (not real malware) using the built-in bloom filters, so it needs a JRE and the bloom filter data to already be present.
+
+See [RELEASING.md](RELEASING.md) for how versioning and PyPI publishing work.

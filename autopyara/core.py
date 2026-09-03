@@ -21,6 +21,34 @@ PresetType = Literal['AutoYara', 'AutoPYara']
 
 augmented_algorithms = ['AugmentedKMeansDBSCAN', 'AugmentedKMeansDBSCANSoft', 'AugmentedKMeansVT', 'AugmentedKMeansVTSoft']
 
+# --- PURE-PYTHON HELPERS (kept module-level and free of JVM state so they
+# can be unit-tested without starting a JVM; see tests/test_core_helpers.py) ---
+
+def resolve_bloom_path(blooms_path, path_arg, filter_type, verbose=False):
+    """Map the 'ember'/'autopyara' shorthand flags to their on-disk bloom
+    filter directory, or pass through a custom path unchanged."""
+    if isinstance(path_arg, str):
+        flag = path_arg.lower()
+        if flag == 'ember':
+            if verbose: print(f"[AutoPYara] Using Default EMBER {filter_type} Filters.")
+            return os.path.join(blooms_path, "ember", filter_type)
+        elif flag == 'autopyara':
+            if verbose: print(f"[AutoPYara] Using AutoPYara {filter_type} Filters.")
+            return os.path.join(blooms_path, "autopyara", filter_type)
+    return path_arg
+
+
+def sanitize_rule_name(rule_name, default="autoyara_rule"):
+    """Turn a user-supplied rule name into a valid YARA identifier fragment:
+    strip anything that isn't alphanumeric/underscore, and prefix with
+    'rule_' if the result would otherwise start with a digit."""
+    if not rule_name:
+        return default
+    clean_name = re.sub(r'[^a-zA-Z0-9_]', '_', rule_name)
+    if clean_name and clean_name[0].isdigit():
+        clean_name = "rule_" + clean_name
+    return clean_name or default
+
 # --- CONTEXT MANAGER TO SUPPRESS JAVA LOGS ---
 @contextlib.contextmanager
 def suppress_output(suppress=True):
@@ -127,31 +155,15 @@ class AutoPYara(PythonInterface):
         # ==============================================================================
         # [SMART FLAG HANDLING]
         # ==============================================================================
-        def resolve_bloom_path(path_arg, filter_type):
-            if isinstance(path_arg, str):
-                flag = path_arg.lower()
-                if flag == 'ember':
-                    if verbose: print(f"[AutoPYara] Using Default EMBER {filter_type} Filters.")
-                    return os.path.join(self.blooms_path, "ember", filter_type)
-                elif flag == 'autopyara':
-                    if verbose: print(f"[AutoPYara] Using AutoPYara {filter_type} Filters.")
-                    return os.path.join(self.blooms_path, "autopyara", filter_type)
-            return path_arg
-
-        bloom_malicious = resolve_bloom_path(bloom_malicious, "malicious")
-        bloom_benign = resolve_bloom_path(bloom_benign, "benign")
+        bloom_malicious = resolve_bloom_path(self.blooms_path, bloom_malicious, "malicious", verbose)
+        bloom_benign = resolve_bloom_path(self.blooms_path, bloom_benign, "benign", verbose)
 
         if bloom_malicious and not os.path.exists(bloom_malicious):
             print(f"[!] WARNING: The resolved filter path does not exist: {bloom_malicious}")
         # ==============================================================================
 
         # --- PREPARE RULE NAME ---
-        base_name = "autoyara_rule"
-        if rule_name:
-            clean_name = re.sub(r'[^a-zA-Z0-9_]', '_', rule_name)
-            if clean_name and clean_name[0].isdigit():
-                clean_name = "rule_" + clean_name
-            base_name = clean_name
+        base_name = sanitize_rule_name(rule_name)
 
         input_files_list = self.ArrayList()
         if isinstance(input_files, str):
