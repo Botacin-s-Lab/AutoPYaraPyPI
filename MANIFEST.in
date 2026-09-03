@@ -1,6 +1,7 @@
 include README.md
 include RELEASING.md
 include CONTRIBUTING.md
+include CHANGELOG.md
 include requirements.txt
 recursive-include autopyara/jars *
 recursive-include tests *.py
