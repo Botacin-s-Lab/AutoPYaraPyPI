@@ -35,12 +35,18 @@ With this in place: an outside contributor forks the repo, pushes to their fork,
 
 ## How a release happens
 
-1. Make whatever code changes you want on `main` as normal.
-2. When you're ready to cut a release, make a commit whose **subject line** (first line only — the body doesn't count) contains one of two trigger phrases, and push it to `main`:
+1. Make whatever code changes you want on `main` as normal — via a PR, per the branch protection above.
+2. When you're ready to cut a release, the commit that actually lands on `main` needs a **subject line** (first line only — the body doesn't count) containing one of two trigger phrases:
    - **"New subversion"** → **patch** bump, e.g. `0.1.5` → `0.1.6`
    - **"New version"** → **minor** bump, e.g. `0.1.5` → `0.2.0` (patch resets to `0`)
 
    Both phrases are case-insensitive. Only the subject line is checked — never put either phrase in a commit body describing this process, or you'll retrigger a release accidentally (this has already happened once; see the git history around the `release.yml` self-match fix).
+
+   **Merge strategy matters here now that `main` requires PRs.** The commit GitHub actually pushes to `main` on merge depends on which merge button you use:
+   - **Squash and merge** / **Create a merge commit** — GitHub generates a *new* commit message (e.g. "Merge pull request #N ...") by default. You must manually edit that title in the merge confirmation box to read one of the trigger phrases before confirming, or nothing fires.
+   - **Rebase and merge** — replays your original commit(s) as-is, so if your commit's subject already says "New subversion"/"New version", it survives onto `main` unchanged and fires correctly.
+
+   If you forget this and merge without checking, the merge just won't trigger a release — nothing breaks, but nothing publishes either. Re-check by looking at the actual commit that landed on `main` (`git log -1 origin/main`) if a release doesn't seem to have fired when you expected one.
 3. GitHub Actions then runs, in order:
    - **`gate`** — checks the head commit's subject line for either phrase and decides `patch` vs `minor`. Everything below only runs if one matched.
    - **`test`** — across Python 3.9–3.12: builds the sdist + wheel, installs the wheel (the same artifact a real `pip install autopyara` would fetch), restores/downloads the bloom filter data, and runs the full test suite (`tests/`) — including `tests/test_smoke_generate.py`, which runs the real pipeline end-to-end against a real JVM. This is the actual "does this release work" check; a failure here stops the release and nothing gets published, regardless of which trigger phrase was used.
