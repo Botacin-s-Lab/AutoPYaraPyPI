@@ -61,7 +61,7 @@ High-Quality YARA Rules
 
 ### Requirements
 
-* Python >= 3.8
+* Python >= 3.9
 * A **Java Runtime Environment (JRE 11+)** on `PATH` or pointed to by `JAVA_HOME`. AutoPYara's clustering/rule-generation backend runs inside a JVM. `pip install` itself doesn't need Java, but `AutoPYara()` will raise a clear error the first time you construct it without one — install a JRE before you actually use the tool. On Debian/Ubuntu: `sudo apt install default-jre`.
 
 Install the package via pip:

@@ -33,13 +33,19 @@ jobs:
           # commit message must not be able to inject shell commands here.
           COMMIT_MSG: ${{ github.event.head_commit.message }}
         run: |
-          MSG=$(printf '%s' "$COMMIT_MSG" | tr '[:upper:]' '[:lower:]')
-          if [[ "$MSG" == *"new version"* ]]; then
+          # Only the SUBJECT line (first line) is checked, not the full
+          # message body. A body/changelog describing this workflow will
+          # almost inevitably mention the phrase "New version" in prose
+          # (e.g. "the gate checks for 'New version' in the commit message")
+          # -- matching against the whole message caused exactly that
+          # self-referential false trigger once already.
+          SUBJECT=$(printf '%s' "$COMMIT_MSG" | head -n1 | tr '[:upper:]' '[:lower:]')
+          if [[ "$SUBJECT" == *"new version"* ]]; then
             echo "should_release=true" >> "$GITHUB_OUTPUT"
-            echo "Commit message contains 'New version' -> will release."
+            echo "Commit subject contains 'New version' -> will release."
           else
             echo "should_release=false" >> "$GITHUB_OUTPUT"
-            echo "Commit message does not contain 'New version' -> skipping release."
+            echo "Commit subject does not contain 'New version' -> skipping release."
           fi
 
   test:
@@ -49,7 +55,11 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: ["3.8", "3.9", "3.10", "3.11"]
+        # 3.8 is intentionally excluded: yara-python, yaramod, and
+        # scikit-learn's current releases no longer publish cp38 wheels
+        # (3.8 reached EOL in Oct 2024) -- confirmed against PyPI, not a
+        # guess. See setup.py's python_requires.
+        python-version: ["3.9", "3.10", "3.11", "3.12"]
     steps:
       - uses: actions/checkout@v4
 

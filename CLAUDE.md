@@ -44,7 +44,7 @@ print(results["rule_string"])
 
 ### Release automation
 
-[.github/workflows/release.yml](.github/workflows/release.yml) triggers on push to `main` whose commit message contains "New version" (case-insensitive): runs the test matrix (Python 3.8–3.11, installing the built **wheel** and running the full `tests/` suite against a real JVM — this is the actual pre-publish functional gate), then — only if that passes on every version — auto-bumps the patch version in `setup.py` via [.github/scripts/bump_version.py](.github/scripts/bump_version.py), commits, tags `vX.Y.Z`, builds sdist + wheel, and publishes both to PyPI with `PYPI_API_TOKEN`. Full details, including one-time repo setup, in [RELEASING.md](RELEASING.md) — read that before touching the workflow or `setup.py`'s version-parsing assumptions.
+[.github/workflows/release.yml](.github/workflows/release.yml) triggers on push to `main` whose commit message contains "New version" (case-insensitive): runs the test matrix (Python 3.9–3.12, installing the built **wheel** and running the full `tests/` suite against a real JVM — this is the actual pre-publish functional gate), then — only if that passes on every version — auto-bumps the patch version in `setup.py` via [.github/scripts/bump_version.py](.github/scripts/bump_version.py), commits, tags `vX.Y.Z`, builds sdist + wheel, and publishes both to PyPI with `PYPI_API_TOKEN`. Full details, including one-time repo setup, in [RELEASING.md](RELEASING.md) — read that before touching the workflow or `setup.py`'s version-parsing assumptions.
 
 ## Architecture
 

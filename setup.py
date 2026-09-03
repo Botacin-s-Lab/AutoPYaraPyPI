@@ -40,5 +40,9 @@ setup(
     extras_require={
         "test": ["pytest"],
     },
-    python_requires='>=3.8',
+    # 3.8 reached EOL in Oct 2024 and yara-python/yaramod/scikit-learn's
+    # current releases no longer publish wheels for it (confirmed against
+    # PyPI) -- CI's test matrix (.github/workflows/release.yml) only covers
+    # 3.9-3.12.
+    python_requires='>=3.9',
 )
