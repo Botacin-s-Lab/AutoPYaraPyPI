@@ -13,7 +13,7 @@
 
 Automatically discover malware families and generate high-quality, tightly scoped YARA rules using probabilistic clustering and Bloom-filtered n-gram analysis.
 
-[**Documentation**](https://botacin-s-lab.github.io/AutoPYaraPyPI/) · [PyPI](https://pypi.org/project/autopyara/) · [Report a Bug](https://github.com/Botacin-s-Lab/AutoPYaraPyPI/issues) · [Releasing](RELEASING.md)
+[**Documentation**](https://botacin-s-lab.github.io/AutoPYaraPyPI/) · [PyPI](https://pypi.org/project/autopyara/) · [Report a Bug](https://github.com/Botacin-s-Lab/AutoPYaraPyPI/issues) · [Changelog](CHANGELOG.md) · [Releasing](RELEASING.md)
 
 </div>
 
