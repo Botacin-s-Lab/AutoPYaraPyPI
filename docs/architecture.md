@@ -167,4 +167,12 @@ This produces `target/AutoYara-<version>.jar`, a shaded fat jar with `Main-Class
 
 ## Credits
 
-The backend builds on [AutoYara](https://github.com/FutureComputing4AI/AutoYara) by Raff et al. (*"Automatic Yara Rule Generation Using Biclustering"*, AISec 2020), which is released under the Apache License 2.0. It also depends on [JSAT](https://github.com/EdwardRaff/JSAT) for linear algebra and spectral co-clustering, and KiloGrams for large-scale n-gram extraction.
+The backend is a **derivative of [AutoYara](https://github.com/FutureComputing4AI/AutoYara)**, released under the Apache License 2.0. That codebase was taken and redesigned: 8 of the backend's 20 Java source files derive from it (all modified), and 12 — including the entire `clustering/` package and the augmented CRDEST clusterers — are original work. The [`NOTICE`](https://github.com/Botacin-s-Lab/AutoPYaraBackend/blob/main/NOTICE) file in the backend records the per-file breakdown and the changes made.
+
+If you use AutoPYara in academic work, please also cite the original AutoYara paper:
+
+> Edward Raff, Richard Zak, Gary Lopez Munoz, William Fleming, Hyrum S. Anderson, Bobby Filar, Charles Nicholas, and James Holt.
+> **"Automatic Yara Rule Generation Using Biclustering."** *13th ACM Workshop on Artificial Intelligence and Security (AISec '20)*, 2020.
+> [doi:10.1145/3411508.3421372](https://doi.org/10.1145/3411508.3421372) · [arXiv:2009.03779](https://arxiv.org/abs/2009.03779)
+
+The backend also depends on [JSAT](https://github.com/EdwardRaff/JSAT) for linear algebra and spectral co-clustering, and KiloGrams for large-scale n-gram extraction.
