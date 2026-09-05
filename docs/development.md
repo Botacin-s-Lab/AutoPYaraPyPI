@@ -27,6 +27,28 @@ Publishing to PyPI is fully automated: pushing a commit to `main` whose **subjec
 
 See [RELEASING.md](https://github.com/Botacin-s-Lab/AutoPYaraPyPI/blob/main/RELEASING.md) in the repository for the full runbook.
 
+## Working on the Java backend
+
+The clustering and rule-synthesis engine lives in a **separate repository**, [AutoPYaraBackend](https://github.com/Botacin-s-Lab/AutoPYaraBackend), and is embedded here as `autopyara/jars/AutoYara.jar`. See [Architecture](architecture.md) for how the two fit together.
+
+```bash
+git clone https://github.com/Botacin-s-Lab/AutoPYaraBackend.git
+cd AutoPYaraBackend
+mvn -B package                      # -> target/AutoYara-<version>.jar
+```
+
+To try a locally built backend, copy that jar over `autopyara/jars/AutoYara.jar` in your checkout of this package.
+
+The backend releases independently, using the same commit-subject convention:
+
+| Backend commit subject | Effect |
+|---|---|
+| `NewVersion` | Release with a minor bump (`1.0.5` → `1.1.0`) |
+| `NewSubversion` | Release with a patch bump (`1.0.5` → `1.0.6`) |
+| `pip sync` | Rebuild the jar and push it into this repository |
+
+A `pip sync` commit updates **only** the jar here — it does not rebuild or re-publish the Python package. Cutting a new `autopyara` release afterwards is a separate, deliberate step.
+
 ## Contributing
 
 `main` isn't open to direct pushes — every change, including from maintainers, goes through a pull request that's automatically built and tested, then reviewed. See [CONTRIBUTING.md](https://github.com/Botacin-s-Lab/AutoPYaraPyPI/blob/main/CONTRIBUTING.md) in the repository for the full flow.

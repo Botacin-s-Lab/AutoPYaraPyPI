@@ -12,6 +12,7 @@ nav:
   - Installation: installation.md
   - Quick Start: quickstart.md
   - API Reference: api.md
+  - Architecture: architecture.md
   - Development & Releasing: development.md
 
 theme:

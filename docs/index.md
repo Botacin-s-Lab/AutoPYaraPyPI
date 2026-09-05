@@ -80,4 +80,14 @@ Train your own Bloom filters on proprietary datasets.
 - [Installation](installation.md) — requirements and how to install AutoPYara.
 - [Quick Start](quickstart.md) — generate your first YARA rule.
 - [API Reference](api.md) — presets, advanced usage, and the full `generate()` parameter table.
+- [Architecture](architecture.md) — how the Python frontend and the separate Java backend fit together.
 - [Development & Releasing](development.md) — running the tests and how releases are published.
+
+## Project links
+
+| | |
+|---|---|
+| :fontawesome-brands-python: **PyPI** | [pypi.org/project/autopyara](https://pypi.org/project/autopyara/) |
+| :fontawesome-brands-github: **Python frontend** | [Botacin-s-Lab/AutoPYaraPyPI](https://github.com/Botacin-s-Lab/AutoPYaraPyPI) |
+| :fontawesome-brands-java: **Java backend** | [Botacin-s-Lab/AutoPYaraBackend](https://github.com/Botacin-s-Lab/AutoPYaraBackend) — separate repository, builds the embedded `AutoYara.jar` |
+| :material-bug: **Issues** | [Report a bug](https://github.com/Botacin-s-Lab/AutoPYaraPyPI/issues) |
