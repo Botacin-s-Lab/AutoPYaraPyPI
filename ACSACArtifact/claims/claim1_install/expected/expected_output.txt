@@ -1,0 +1,56 @@
+Expected output - Claim 1
+================================================================================
+
+SUCCESS CRITERION
+    The script exits 0 and the final line reads:
+
+        CLAIM 1: PASS -- installation is sound and the backend is operational
+
+    All five checks must report [ok]. Any [FAIL] causes a non-zero exit.
+
+WHAT VARIES BETWEEN ENVIRONMENTS
+    Version numbers, file paths, and the JPype version will differ. The jar
+    size may differ slightly between backend releases. None of that affects
+    the verdict. The check labels and the PASS line are what matter.
+
+REFERENCE TRANSCRIPT
+    Captured on the reference platform (Ubuntu, OpenJDK 21, CPython 3.13).
+    Lines beginning "[*] Initializing Backend" come from the JVM starting and
+    are expected.
+
+--------------------------------------------------------------------------------
+================================================================================
+CLAIM 1 - AutoPYara installs and its JVM backend initializes
+================================================================================
+
+1. Package import
+  [ok]   autopyara imports and reports a version -- autopyara 0.1.2
+
+2. Java backend
+[*] Initializing Backend: /path/to/site-packages/autopyara/jars/AutoYara.jar
+  [ok]   AutoPYara() constructs and the JVM starts -- JVM started (JPype 1.6.0)
+  [ok]   AutoYara.jar is present -- 2.3 MB
+
+3. Bloom filter data
+  [ok]   all four Bloom filter sets are present -- 4/4 sets present, 32 .bloom files
+
+4. Synthetic proxy corpus
+  [ok]   proxy corpus generator produces a valid corpus -- 6 samples across 2 families
+
+================================================================================
+CLAIM 1: PASS -- installation is sound and the backend is operational
+================================================================================
+--------------------------------------------------------------------------------
+
+TROUBLESHOOTING
+    "AutoPYara() constructs and the JVM starts" fails
+        No usable JRE. Install one (JRE 11+) and ensure `java` is on PATH or
+        JAVA_HOME is set. See ../../../infrastructure/resources.txt.
+
+    "all four Bloom filter sets are present" fails
+        The ~600 MB data download did not complete. Re-run ../../../install.sh,
+        or run `autopyara-download` directly. It is safe to re-run.
+
+    The process is killed partway through
+        Insufficient RAM. The JVM is started with a fixed 14 GB maximum heap.
+        See ../../../infrastructure/constraints.txt.

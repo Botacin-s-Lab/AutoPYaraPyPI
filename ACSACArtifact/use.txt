@@ -1,0 +1,92 @@
+================================================================================
+Intended use and limitations
+================================================================================
+
+--------------------------------------------------------------------------------
+1. INTENDED USE
+--------------------------------------------------------------------------------
+
+AutoPYara is a defensive malware-analysis tool. It takes a collection of
+samples believed to belong to the same family and automatically produces YARA
+rules that match them, so that analysts can automate away the families that
+yield to automation and spend their time on the ones that do not.
+
+Intended users are malware analysts, threat-intelligence teams, and security
+researchers who already possess samples and need detection signatures for them.
+
+The tool READS sample files as byte streams. It does not execute, unpack,
+emulate, deobfuscate, or otherwise run them. Handling a malicious file with
+AutoPYara is therefore no more dangerous than reading that file with any other
+program - but the samples themselves remain dangerous, and normal handling
+precautions apply.
+
+--------------------------------------------------------------------------------
+2. DUAL-USE CONSIDERATION
+--------------------------------------------------------------------------------
+
+Automated signature generation is defensive by nature: its output is detection
+rules. We are not aware of a meaningful offensive application of this tool.
+
+The one adversarial consideration worth naming is that an attacker holding a
+generated rule learns which byte sequences a defender keys on, and could mutate
+those regions to evade it. This is a property of signature-based detection in
+general, not of this tool specifically, and it is why generated rules should be
+treated as one detection layer rather than a complete defense.
+
+This artifact ships no malware. Its sample corpus is synthetic (see section 4).
+
+--------------------------------------------------------------------------------
+3. LIMITATIONS
+--------------------------------------------------------------------------------
+
+Results are not bit-reproducible.
+    The augmented clustering path (preset="AutoPYara") derives cluster
+    centroids using a randomized robust estimator whose partition step uses an
+    unseeded random number generator. Two runs on identical input can produce
+    different cluster counts and different rules. There is currently no way to
+    fix the seed from the public API. The claim validators in this artifact
+    therefore assert structural properties of the output rather than comparing
+    against a stored reference rule.
+
+Substantial memory requirement.
+    The JVM backend is started with a fixed 14 GB maximum heap. This is not
+    configurable through the public API in the current release. See
+    infrastructure/resources.txt and infrastructure/constraints.txt.
+
+Rule quality depends on input quality.
+    The tool assumes the input samples genuinely belong to one family. Given a
+    heterogeneous or mislabelled input set, it will still emit a rule, but that
+    rule may be over-broad or of little practical value. It performs no
+    validation that the supplied samples are actually related.
+
+Rules generated from the synthetic proxy corpus are not useful signatures.
+    They are structurally valid YARA and demonstrate that the pipeline works,
+    but they match pseudo-random data, not any real malware family.
+
+Java dependency.
+    A JRE 11+ must be present at run time. `pip install autopyara` succeeds
+    without one, but constructing AutoPYara() then fails.
+
+Platform coverage.
+    Tested on Linux with CPython 3.9 through 3.12. Not tested on macOS or
+    Windows, though nothing in the design is deliberately Linux-specific.
+
+--------------------------------------------------------------------------------
+4. ABOUT THE SAMPLE DATA IN THIS ARTIFACT
+--------------------------------------------------------------------------------
+
+The experiments in the paper used a malware corpus that cannot be
+redistributed for legal and ethical reasons.
+
+This artifact therefore ships a synthetic proxy corpus, generated at run time
+by artifact/make_proxy_corpus.py. It is pseudo-random binary data with
+deliberately planted shared byte patterns, arranged in groups so that the
+clustering stages have structure to find. It contains no malicious code, no
+real-world binaries, and no third-party data of any kind.
+
+This is what allows a reviewer to exercise the complete pipeline - n-gram
+extraction, Bloom filtering, biclustering, clustering, rule synthesis, and
+YARA compilation - without obtaining, storing, or handling live malware.
+
+To run AutoPYara against real samples instead, point `input_files` at a
+directory of them; nothing in the tool is specific to the proxy corpus.

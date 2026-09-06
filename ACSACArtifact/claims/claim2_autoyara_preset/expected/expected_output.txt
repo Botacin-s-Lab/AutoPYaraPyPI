@@ -1,0 +1,86 @@
+Expected output - Claim 2
+================================================================================
+
+SUCCESS CRITERION
+    The script exits 0 and the final line reads:
+
+        CLAIM 2: PASS -- the AutoYara preset produced a valid, compilable YARA rule
+
+    All seven checks must report [ok]. The decisive ones are "rule compiles as
+    real YARA" (the rule is accepted by the yara-python compiler, so it is
+    genuine YARA rather than plausible-looking text) and "compiled rule can
+    scan a file".
+
+WHAT VARIES BETWEEN RUNS AND ENVIRONMENTS
+    The rule content itself. The specific hex strings, their count, the chosen
+    gram_size, k_clusters, and the reported TP rate all depend on the
+    clustering outcome and may differ from the transcript below. This does not
+    affect the verdict -- the checks assert structural properties, not equality
+    with a stored rule.
+
+    Do NOT diff your rule against the one below. Compare the check lines and
+    the PASS verdict.
+
+REFERENCE TRANSCRIPT (abridged; progress bars and JVM chatter removed)
+--------------------------------------------------------------------------------
+================================================================================
+CLAIM 2 - The AutoYara (VBGMM) preset generates a valid YARA rule
+================================================================================
+
+Building the synthetic proxy corpus...
+Wrote 6 synthetic samples (2 families x 3) to /tmp/.../corpus
+Each sample is 48 KB of pseudo-random data containing 6 planted 64-byte family patterns.
+Ground truth is recorded in MANIFEST.txt. No malicious code is present.
+
+Running the AutoYara preset (this takes a minute or two)...
+
+Verifying the result:
+  [ok]   generate() returned a result -- 14 keys returned
+  [ok]   result contains the documented keys -- k_clusters=4, file_count=6, gram_size=64
+  [ok]   rule_string is non-empty -- 1883 chars, 20 lines
+  [ok]   rule is structurally well-formed YARA -- 12 hex string(s) declared
+  [ok]   rule carries the requested name -- rule_name honoured
+  [ok]   rule compiles as real YARA -- accepted by the yara-python compiler
+  [ok]   compiled rule can scan a file -- scanned a sample, 1 match(es)
+
+--------------------------------------------------------------------------------
+Generated rule (first 25 lines):
+--------------------------------------------------------------------------------
+  rule acsac_claim2
+  {
+  	//Input TP Rate:
+  	//4/6
+  	strings:
+  		//Benign FP est: -0.0 Malicious FP est: -0.0 Entropy: 5.875 Found in 3 files
+  		$x3 = { A4 07 CD BC 08 06 2E 97 ... }
+  		//Benign FP est: -0.0 Malicious FP est: -0.0 Entropy: 5.8125 Found in 3 files
+  		$x2 = { 20 81 01 64 FC 7E 28 AB ... }
+  		[... further $xN entries ...]
+
+  		condition:
+  (2 of ($x0,$x1,$x2) ) or (2 of ($x3,$x4,$x5) )}
+
+================================================================================
+CLAIM 2: PASS -- the AutoYara preset produced a valid, compilable YARA rule
+================================================================================
+--------------------------------------------------------------------------------
+
+A NOTE ON WHAT THE RULE SHOWS
+    In the transcript above, two strings are annotated "Found in 3 files".
+    Those correspond to byte sequences the proxy corpus deliberately plants
+    across the three members of each synthetic family, and the emitted
+    condition is a disjunction over two groups -- mirroring the corpus's
+    two-family structure.
+
+    This is a useful sanity signal that the pipeline is genuinely discovering
+    shared structure rather than emitting noise. It is NOT evidence about
+    detection quality on real malware; the input is synthetic. See ../../use.txt.
+
+TROUBLESHOOTING
+    "generate() returned a result" fails with None
+        No candidate signature satisfied the configured false-positive and
+        support constraints. On the supplied proxy corpus this should not
+        happen; if it does, confirm Claim 1 passes first.
+
+    The process is killed partway through
+        Insufficient RAM -- see ../../../infrastructure/constraints.txt.

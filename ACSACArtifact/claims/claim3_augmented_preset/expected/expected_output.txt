@@ -1,0 +1,100 @@
+Expected output - Claim 3
+================================================================================
+
+SUCCESS CRITERION
+    The script exits 0 and the final line reads:
+
+        CLAIM 3: PASS -- the augmented pipeline ran and derived its own cluster count
+
+    All seven checks must report [ok]. The decisive ones are:
+
+        "a cluster count was derived automatically"
+            proves the ssdeep + DBSCAN -> predictor-label -> CRDEST path ran,
+            since no k_cluster was supplied.
+
+        "k_cluster is rejected with this preset"
+            proves the auto-K path is genuinely in control rather than being
+            silently overridden.
+
+THIS CLAIM IS DELIBERATELY NOT BIT-REPRODUCIBLE
+    Run it twice and you should expect DIFFERENT output. The CRDEST centroid
+    estimator partitions its input with an unseeded random number generator,
+    and the seed cannot be fixed through the public API in this release.
+
+    Between runs, these may all change:
+        - the derived k_clusters
+        - the chosen gram_size
+        - the number, content and ordering of hex strings
+        - the reported TP rate
+        - the condition expression
+
+    Do NOT diff your output against the transcript below, and do not treat a
+    differing cluster count as a failure. The checks assert structural
+    properties precisely because equality checks would be wrong here.
+    See ../../use.txt.
+
+REFERENCE TRANSCRIPT (abridged; progress bars, threshold-search iterations
+and JVM chatter removed)
+--------------------------------------------------------------------------------
+================================================================================
+CLAIM 3 - The augmented AutoPYara preset runs and determines its own k
+================================================================================
+
+Building the synthetic proxy corpus...
+Wrote 6 synthetic samples (2 families x 3) to /tmp/.../corpus
+
+Running the augmented preset with NO k_cluster supplied
+(ssdeep + DBSCAN -> predictor labels -> CRDEST centroids; a few minutes)...
+[*] Optimizing Threshold for Target K=2
+[*] Final Opt: Threshold=50.00, K=6
+[*] Clustering 6 files with threshold 50...
+
+Verifying the result:
+  [ok]   generate() returned a result -- 14 keys returned
+  [ok]   a cluster count was derived automatically -- auto-derived k_clusters=6 (no k_cluster was supplied)
+  [ok]   result contains the documented keys -- file_count=6, gram_size=16
+  [ok]   rule_string is non-empty -- 613 chars, 14 lines
+  [ok]   rule is structurally well-formed YARA -- 7 hex string(s) declared
+  [ok]   rule compiles as real YARA -- accepted by the yara-python compiler
+  [ok]   k_cluster is rejected with this preset -- ValueError raised, as documented
+
+--------------------------------------------------------------------------------
+Generated rule (first 15 lines):
+--------------------------------------------------------------------------------
+  rule acsac_claim3
+  {
+  	//Input TP Rate:
+  	//2/6
+  	strings:
+  		//Benign FP est: -0.0 Malicious FP est: -0.0 Entropy: 4.0 Found in 3 files
+  		$x0 = { DF BD 3E B1 BC 8F A1 D2 56 AA EC 83 47 DA C1 52 }
+  		[... further $xN entries ...]
+
+  		condition:
+  (2 of ($x0,$x1) ) or (2 of ($x0,$x2) )}
+
+================================================================================
+CLAIM 3: PASS -- the augmented pipeline ran and derived its own cluster count
+================================================================================
+--------------------------------------------------------------------------------
+
+READING THE THRESHOLD SEARCH OUTPUT
+    "Optimizing Threshold for Target K=2" ... "Final Opt: Threshold=50.00, K=6"
+    is the ssdeep/DBSCAN stage searching for a similarity threshold. On the
+    synthetic proxy corpus the fuzzy hashes carry little usable similarity
+    signal -- pseudo-random data does not fuzzy-hash into tight families -- so
+    the search often settles with each sample in its own cluster.
+
+    That is a property of the synthetic input, not a defect, and it does not
+    affect this claim: what is being verified is that the augmented path runs
+    and derives a k, not that it recovers the corpus's ground-truth families.
+    Cluster-recovery quality is a question for real malware, which this
+    artifact cannot ship.
+
+TROUBLESHOOTING
+    "a cluster count was derived automatically" fails with k_clusters None
+        The augmented path did not run. Confirm preset="AutoPYara" is spelled
+        exactly and that Claim 1 passes.
+
+    The process is killed partway through
+        Insufficient RAM -- see ../../../infrastructure/constraints.txt.

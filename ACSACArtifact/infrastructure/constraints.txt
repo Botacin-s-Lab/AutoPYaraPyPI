@@ -1,0 +1,75 @@
+================================================================================
+Constraints: why Google Colab is not a viable platform for this artifact
+================================================================================
+
+The ACSAC call asks that artifacts run on public research infrastructure, and
+lists Google Colab among the options. This artifact runs on CloudLab and
+Chameleon, but NOT on Colab. This file explains why, since the call asks for a
+rationale where a listed platform is not viable.
+
+--------------------------------------------------------------------------------
+THE CONSTRAINT
+--------------------------------------------------------------------------------
+
+AutoPYara starts its JVM backend with a fixed maximum heap of 14 GB:
+
+    autopyara/interface.py:
+        jpype.startJVM(
+            jpype.getDefaultJVMPath(),
+            f"-Djava.class.path={jar_path}",
+            "-Xmx14g",          # <-- fixed; not configurable in this release
+            convertStrings=True
+        )
+
+Google Colab's free tier provides roughly 12.7 GB of RAM. The JVM is therefore
+permitted to grow beyond the total memory available to the runtime.
+
+--------------------------------------------------------------------------------
+WHY THIS BREAKS, PRECISELY
+--------------------------------------------------------------------------------
+
+-Xmx sets a ceiling, not an up-front allocation, and on 64-bit Linux it is
+satisfied by reserving virtual address space. The JVM therefore starts without
+complaint even when the ceiling exceeds physical memory - so the failure is not
+a clean error at startup.
+
+The problem appears later, and is worse for being silent. Because the JVM
+believes it has 14 GB of headroom, it has no reason to collect aggressively as
+the heap grows. On a 12.7 GB runtime it grows past what physically exists and
+the kernel's out-of-memory killer terminates the process mid-run. In Colab this
+surfaces as "Your session crashed after using all available RAM", with nothing
+pointing at a heap setting as the cause.
+
+Note the perverse part: a SMALLER heap setting would survive. Given a ceiling
+that fits the machine, the JVM simply collects more often - slower, but it
+completes. The oversized fixed ceiling is what turns a memory-tight run into a
+crash.
+
+--------------------------------------------------------------------------------
+CONSEQUENCE FOR EVALUATION
+--------------------------------------------------------------------------------
+
+Use a platform with at least 16 GB of RAM. Both recommended platforms in
+resources.txt satisfy this comfortably with their standard node types, need no
+special allocation or hardware request, and are open to reviewers:
+
+    CloudLab     https://www.cloudlab.us/
+    Chameleon    https://www.chameleoncloud.org/
+
+Any ordinary Linux machine or cloud VM with >= 16 GB RAM works equally well;
+nothing about the artifact requires those specific platforms. A local machine
+meeting the requirement is entirely sufficient.
+
+--------------------------------------------------------------------------------
+STATUS
+--------------------------------------------------------------------------------
+
+This is a known limitation of the current release rather than a fundamental
+design constraint - the heap size is a single hard-coded string. Making it
+configurable (for example from an environment variable) would let the tool run
+within a smaller budget and would remove this restriction. It is recorded here
+so that reviewers can size their environment correctly rather than discovering
+it through an opaque crash.
+
+No remote access to author-controlled infrastructure is required to evaluate
+this artifact; see resources.txt.

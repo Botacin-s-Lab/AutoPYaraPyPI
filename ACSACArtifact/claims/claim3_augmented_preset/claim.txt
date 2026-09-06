@@ -1,0 +1,59 @@
+CLAIM 3 - The augmented AutoPYara preset runs and determines its own cluster count
+================================================================================
+
+CLAIM
+    AutoPYara's `preset="AutoPYara"` pipeline runs end to end without being told
+    how many clusters to look for. It derives cluster labels in Python using
+    ssdeep fuzzy hashing plus DBSCAN, hands those labels to the Java backend as
+    predictor labels, computes robust centroids there via CRDEST, and emits a
+    syntactically valid YARA rule.
+
+WHY THIS CLAIM EXISTS
+    This is the pipeline the paper contributes, and the one that distinguishes
+    AutoPYara from upstream AutoYara. It is also the only part of the system
+    that spans both languages in both directions: Python -> Java to load and
+    extract candidates, Java -> Python to retrieve the resolved sample list,
+    Python -> Java again to supply predictor labels. Verifying it runs proves
+    that round trip works.
+
+WHAT IS VERIFIED
+    1. generate() completes with preset="AutoPYara" and NO k_cluster argument,
+       i.e. the cluster count is determined automatically.
+    2. A cluster count was in fact derived (k_clusters is set and >= 1).
+    3. The returned dictionary contains the documented keys.
+    4. rule_string is non-empty and structurally well-formed YARA.
+    5. The rule is accepted by the yara-python compiler.
+    6. Supplying k_cluster together with this preset is rejected, confirming
+       the auto-K path is genuinely in control rather than silently ignored.
+
+HOW TO RUN
+    ./run.sh
+
+    Prerequisites: ../../install.sh has been run, and Claim 1 passes.
+    Runtime: roughly 1-4 minutes.
+
+EXPECTED RESULT
+    A check-by-check report ending in "CLAIM 3: PASS", exiting 0.
+    See expected/expected_output.txt.
+
+IMPORTANT - THIS CLAIM IS NOT BIT-REPRODUCIBLE
+    The CRDEST centroid estimator partitions its input using an unseeded
+    random number generator, and there is no way to fix the seed through the
+    public API in this release. Repeated runs on identical input can therefore
+    produce a different cluster count and a different rule.
+
+    This is expected behaviour, not a fault, and it is why the checks below
+    assert structural properties (a rule was produced, it compiles, a k was
+    derived) rather than comparing against a stored reference rule. A reviewer
+    running this twice SHOULD expect the output to differ. See ../../use.txt.
+
+WHAT IS *NOT* CLAIMED
+    That the emitted rule is a useful detection signature, or that the derived
+    cluster count matches the proxy corpus's ground-truth family count. The
+    input is synthetic pseudo-random data, and cluster recovery on it is not
+    meaningful evidence about the algorithm's behaviour on real malware.
+
+RELATION TO THE PAPER
+    Demonstrates that the paper's contributed pipeline is present and
+    functional. It does not reproduce the paper's numerical results, which
+    require the non-redistributable malware corpus described in ../../use.txt.
