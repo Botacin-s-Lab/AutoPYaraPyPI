@@ -61,7 +61,7 @@ Rule quality depends on input quality.
 
 Rules generated from the synthetic proxy corpus are not useful signatures.
     They are structurally valid YARA and demonstrate that the pipeline works,
-    but they match pseudo-random data, not any real malware family.
+    but they match fabricated structure, not any real malware family.
 
 Java dependency.
     A JRE 11+ must be present at run time. `pip install autopyara` succeeds
@@ -79,10 +79,25 @@ The experiments in the paper used a malware corpus that cannot be
 redistributed for legal and ethical reasons.
 
 This artifact therefore ships a synthetic proxy corpus, generated at run time
-by artifact/make_proxy_corpus.py. It is pseudo-random binary data with
-deliberately planted shared byte patterns, arranged in groups so that the
-clustering stages have structure to find. It contains no malicious code, no
-real-world binaries, and no third-party data of any kind.
+by artifact/make_proxy_corpus.py. Each synthetic "family" is built around a
+large shared contiguous core wrapped in per-variant unique regions, mirroring
+the way real malware variants share reused code and embedded resources. It
+contains no malicious code, no real-world binaries, and no third-party data of
+any kind.
+
+The shared region is large and contiguous by design. An earlier version of the
+generator planted small patterns at scattered offsets, which the n-gram feature
+path could see but fuzzy hashing could not - every pair scored ssdeep
+similarity 0, so the augmented pipeline's clustering stage received no usable
+signal and assigned every sample to its own cluster. That was a defect in the
+proxy, not in the method, and it is fixed. Run the generator with --report to
+inspect the similarity matrix directly.
+
+Because we constructed this corpus, it cannot support comparative claims. In
+repeated runs both pipelines reach a 6/6 TP rate on it, so it does not
+distinguish them, and no result on fabricated data would say anything about
+behaviour on real malware. Comparative claims belong to the paper's evaluation
+against its real corpus.
 
 This is what allows a reviewer to exercise the complete pipeline - n-gram
 extraction, Bloom filtering, biclustering, clustering, rule synthesis, and

@@ -9,27 +9,53 @@ malicious code.
 
 WHAT IT PRODUCES
 
-    Pseudo-random binary files, arranged in `--families` groups. Every file in
-    a group shares a set of planted byte sequences that appear nowhere else, so
-    the n-gram extraction and clustering stages have real structure to find,
-    the way they would with a genuine malware family.
+    Synthetic binaries arranged in `--families` groups. Each family is built
+    around a large SHARED CONTIGUOUS CORE - a block of bytes common to every
+    member - wrapped in per-variant unique regions, with a small number of
+    per-variant patches applied inside the core.
+
+    Layout of each sample:
+
+        [ stub  ~10% ]  unique per sample      (stands in for a packer stub)
+        [ core  ~65% ]  shared across family,  (stands in for reused code and
+                        lightly patched         embedded resources)
+        [ tail  ~25% ]  unique per sample      (stands in for config/padding)
 
     The output contains no malicious code, no real-world binaries, and no
     third-party data. It is generated from a fixed seed, so the corpus is
     identical on every run and on every machine.
 
-WHY PLANTED PATTERNS ARE NEEDED
+WHY THE SHARED REGION IS CONTIGUOUS AND LARGE
 
-    AutoPYara looks for byte n-grams that are common across the input samples
-    but rare in its benign/malicious Bloom filters. Purely random files share
-    no n-grams at all beyond chance, so the pipeline would run but find nothing
-    worth emitting. The planted sequences give it something to legitimately
-    discover.
+    An earlier version of this script planted six 64-byte patterns at random
+    offsets - about 0.8% of each file. That was a poor proxy, for a concrete
+    and measurable reason:
+
+        AutoPYara's augmented pipeline clusters samples using ssdeep fuzzy
+        hashing. ssdeep measures structural similarity across the whole byte
+        stream. Sub-1% shared content at scattered offsets is invisible to it:
+        every pair in that corpus scored ssdeep similarity 0, including
+        same-family pairs. DBSCAN therefore saw no structure and assigned every
+        sample to its own cluster.
+
+        The n-gram feature path used by the baseline AutoYara preset does see
+        such patterns, so the old corpus systematically disadvantaged one of
+        the two pipelines - not because of any property of the methods, but
+        because of how the fake data was built.
+
+    Real malware variants within a family share large contiguous regions:
+    reused code, static resources, embedded configuration. That is exactly the
+    signal ssdeep is designed to pick up. This corpus reproduces that property
+    so that both pipelines are fed input with the structure they each expect.
+
+    Run with --report to print the resulting ssdeep similarity matrix and check
+    this for yourself.
 
 USAGE
 
     python3 make_proxy_corpus.py --out /tmp/proxy_corpus
     python3 make_proxy_corpus.py --out /tmp/corpus --families 3 --per-family 4
+    python3 make_proxy_corpus.py --out /tmp/corpus --report
 """
 import argparse
 import os
@@ -37,16 +63,18 @@ import random
 import shutil
 import sys
 
-# Fixed so the corpus is byte-identical everywhere. Nothing here depends on
-# system entropy.
+# Fixed so the corpus is byte-identical everywhere. Nothing depends on system
+# entropy.
 SEED = 20260909
 
-# Planted sequences are this long. 16 bytes comfortably exceeds the largest
-# n-gram size AutoPYara extracts (1024 bits = 128 bytes at the top end, but the
-# useful signal sits in the 8-64 byte range), so a planted run of this size
-# survives into the candidate set.
-PATTERN_LEN = 64
-PATTERNS_PER_FAMILY = 6
+STUB_FRACTION = 0.10   # unique leading region
+CORE_FRACTION = 0.65   # shared-within-family region
+                       # remainder is the unique trailing region
+
+# Fraction of the shared core overwritten per variant, so family members are
+# highly similar without being byte-identical.
+CORE_PATCH_FRACTION = 0.03
+CORE_PATCHES = 4
 
 
 def build_corpus(out_dir, families, per_family, size_kb):
@@ -57,44 +85,81 @@ def build_corpus(out_dir, families, per_family, size_kb):
     os.makedirs(out_dir)
 
     size = size_kb * 1024
+    stub_len = int(size * STUB_FRACTION)
+    core_len = int(size * CORE_FRACTION)
+    tail_len = size - stub_len - core_len
+
     manifest = []
 
     for fam in range(families):
-        # Sequences shared by every member of this family and no other.
-        patterns = [
-            bytes(rng.getrandbits(8) for _ in range(PATTERN_LEN))
-            for _ in range(PATTERNS_PER_FAMILY)
-        ]
+        # The family's shared core: one contiguous block every member carries.
+        core = bytes(rng.getrandbits(8) for _ in range(core_len))
 
         for member in range(per_family):
-            data = bytearray(rng.getrandbits(8) for _ in range(size))
+            stub = bytes(rng.getrandbits(8) for _ in range(stub_len))
+            tail = bytes(rng.getrandbits(8) for _ in range(tail_len))
 
-            # Splice the family's patterns in at spread-out offsets so they are
-            # not adjacent and not at a constant position across files.
-            for i, pat in enumerate(patterns):
-                span = size // PATTERNS_PER_FAMILY
-                base = i * span
-                jitter = rng.randrange(0, max(1, span - PATTERN_LEN))
-                at = min(base + jitter, size - PATTERN_LEN)
-                data[at:at + PATTERN_LEN] = pat
+            # Lightly patch the core so variants are similar, not identical.
+            body = bytearray(core)
+            patch_len = max(1, int(core_len * CORE_PATCH_FRACTION / CORE_PATCHES))
+            for _ in range(CORE_PATCHES):
+                at = rng.randrange(0, max(1, core_len - patch_len))
+                body[at:at + patch_len] = bytes(
+                    rng.getrandbits(8) for _ in range(patch_len)
+                )
 
+            data = stub + bytes(body) + tail
             name = f"family{fam:02d}_sample{member:02d}.bin"
-            path = os.path.join(out_dir, name)
-            with open(path, "wb") as fh:
-                fh.write(bytes(data))
+            with open(os.path.join(out_dir, name), "wb") as fh:
+                fh.write(data)
             manifest.append((name, fam))
 
     with open(os.path.join(out_dir, "MANIFEST.txt"), "w") as fh:
         fh.write("Synthetic proxy corpus for the AutoPYara ACSAC artifact.\n")
         fh.write("Generated by make_proxy_corpus.py -- contains NO malicious code.\n\n")
         fh.write(f"seed={SEED} families={families} per_family={per_family} "
-                 f"size={size_kb}KB pattern_len={PATTERN_LEN} "
-                 f"patterns_per_family={PATTERNS_PER_FAMILY}\n\n")
+                 f"size={size_kb}KB\n")
+        fh.write(f"layout: stub={stub_len}B unique, core={core_len}B shared per family "
+                 f"({CORE_PATCHES} patches of ~{patch_len}B per variant), "
+                 f"tail={tail_len}B unique\n\n")
         fh.write("file,ground_truth_family\n")
         for name, fam in manifest:
             fh.write(f"{name},{fam}\n")
 
     return [os.path.join(out_dir, n) for n, _ in manifest]
+
+
+def report(out_dir):
+    """Print the ssdeep similarity matrix, so the corpus's suitability for the
+    fuzzy-hash clustering stage can be verified rather than assumed."""
+    try:
+        import ppdeep
+    except ImportError:
+        print("  (ppdeep not installed; skipping similarity report)", file=sys.stderr)
+        return
+
+    import itertools
+    files = sorted(f for f in os.listdir(out_dir) if f.endswith(".bin"))
+    hashes = {}
+    for f in files:
+        with open(os.path.join(out_dir, f), "rb") as fh:
+            hashes[f] = ppdeep.hash(fh.read())
+
+    same, diff = [], []
+    print("\nssdeep similarity (drives the augmented preset's DBSCAN stage):")
+    for a, b in itertools.combinations(files, 2):
+        score = ppdeep.compare(hashes[a], hashes[b])
+        is_same = a.split("_")[0] == b.split("_")[0]
+        (same if is_same else diff).append(score)
+        print(f"  {a} vs {b}  {'SAME' if is_same else 'diff'} family  similarity={score}")
+
+    if same and diff:
+        print(f"\n  same-family:  min={min(same)} max={max(same)} mean={sum(same)/len(same):.1f}")
+        print(f"  cross-family: min={min(diff)} max={max(diff)} mean={sum(diff)/len(diff):.1f}")
+        if min(same) > max(diff):
+            print("  -> families are separable by fuzzy hashing")
+        else:
+            print("  -> WARNING: families are NOT cleanly separable")
 
 
 def main():
@@ -104,20 +169,25 @@ def main():
     ap.add_argument("--families", type=int, default=2, help="number of synthetic families")
     ap.add_argument("--per-family", type=int, default=3, help="samples per family")
     ap.add_argument("--size-kb", type=int, default=48, help="size of each sample, in KB")
+    ap.add_argument("--report", action="store_true",
+                    help="print the ssdeep similarity matrix after generating")
     args = ap.parse_args()
 
     if args.families < 1 or args.per_family < 1:
         print("error: --families and --per-family must be >= 1", file=sys.stderr)
         return 1
 
-    files = build_corpus(args.out, args.families, args.per_family, args.size_kb)
+    build_corpus(args.out, args.families, args.per_family, args.size_kb)
 
     total = args.families * args.per_family
     print(f"Wrote {total} synthetic samples "
           f"({args.families} families x {args.per_family}) to {args.out}")
-    print(f"Each sample is {args.size_kb} KB of pseudo-random data containing "
-          f"{PATTERNS_PER_FAMILY} planted {PATTERN_LEN}-byte family patterns.")
+    print(f"Each sample is {args.size_kb} KB: a unique stub, a family-shared "
+          f"contiguous core, and a unique tail.")
     print("Ground truth is recorded in MANIFEST.txt. No malicious code is present.")
+
+    if args.report:
+        report(args.out)
     return 0
 
 

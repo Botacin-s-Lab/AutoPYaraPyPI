@@ -96,14 +96,27 @@ Following the ACSAC call's provision for proprietary data ("Proxies for
 proprietary data should be included so as to demonstrate the analysis"), this
 artifact ships a SYNTHETIC proxy corpus, generated deterministically at run
 time by artifact/make_proxy_corpus.py. The proxy contains no malicious code
-whatsoever - it is pseudo-random binary data with controlled shared byte
-patterns, designed so that the n-gram extraction, Bloom filtering, clustering,
-and rule-synthesis stages all execute on realistic-shaped input.
+whatsoever. Each synthetic "family" is built around a large shared contiguous
+core wrapped in per-variant unique regions, mirroring the way real malware
+variants share reused code and embedded resources. That structure matters: it
+is what lets both the n-gram feature path and the fuzzy-hash clustering path
+operate on input of a realistic shape. Run
+
+    python3 artifact/make_proxy_corpus.py --out /tmp/c --report
+
+to see the resulting ssdeep similarity matrix (same-family pairs score in the
+60s-70s, cross-family pairs score 0).
 
 Consequently the YARA rules produced by the claims below are structurally
 valid but not meaningful detection signatures. That is expected. The claims
 verify that the pipeline runs and produces well-formed output, not that it
 detects real malware families.
+
+Note also that the figures the claims print are NOT a benchmark comparing the
+two pipelines against each other. On this corpus both saturate at a 6/6 TP
+rate, so it cannot distinguish them; and synthetic data could not support such
+a comparison in any case. See the "THESE NUMBERS ARE NOT A BENCHMARK" sections
+in the individual claim files.
 
 One further caveat, stated up front: the augmented clustering path uses an
 unseeded random number generator, so repeated runs on identical input can

@@ -38,9 +38,22 @@ EXPECTED RESULT
 
 WHAT IS *NOT* CLAIMED
     That the emitted rule is a useful detection signature. The input is a
-    synthetic proxy corpus of pseudo-random data (see ../../use.txt), so the
-    rule matches planted byte patterns, not any real malware family. The claim
-    is about the pipeline functioning, not about detection quality.
+    synthetic corpus we constructed (see ../../use.txt), so the rule matches
+    fabricated structure, not any real malware family. The claim is about the
+    pipeline functioning, not about detection quality.
+
+THESE NUMBERS ARE NOT A BENCHMARK
+    Claim 2 and Claim 3 exercise the two pipelines the tool offers. The figures
+    they print - TP rate, cluster count, gram size, string count - must NOT be
+    read as a comparison between the two approaches.
+
+    On the synthetic proxy corpus both pipelines saturate: in repeated runs
+    both reached a 6/6 TP rate every time. A benchmark on which both methods
+    score perfectly cannot distinguish them, and synthetic data cannot support
+    a claim about either method's behaviour on real malware regardless.
+
+    Any comparative claim rests on the paper's evaluation against its real
+    malware corpus, not on this artifact.
 
 RELATION TO THE PAPER
     Demonstrates the baseline pipeline the paper's AutoYara-preset results were

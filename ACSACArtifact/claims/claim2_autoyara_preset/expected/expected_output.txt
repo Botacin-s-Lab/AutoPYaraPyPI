@@ -12,11 +12,10 @@ SUCCESS CRITERION
     scan a file".
 
 WHAT VARIES BETWEEN RUNS AND ENVIRONMENTS
-    The rule content itself. The specific hex strings, their count, the chosen
-    gram_size, k_clusters, and the reported TP rate all depend on the
-    clustering outcome and may differ from the transcript below. This does not
-    affect the verdict -- the checks assert structural properties, not equality
-    with a stored rule.
+    The rule content itself. The specific hex strings, the chosen gram_size,
+    and the string count depend on the clustering outcome and vary between
+    runs. In our own repeated runs gram_size ranged from 8 to 256 on identical
+    input.
 
     Do NOT diff your rule against the one below. Compare the check lines and
     the PASS verdict.
@@ -29,16 +28,16 @@ CLAIM 2 - The AutoYara (VBGMM) preset generates a valid YARA rule
 
 Building the synthetic proxy corpus...
 Wrote 6 synthetic samples (2 families x 3) to /tmp/.../corpus
-Each sample is 48 KB of pseudo-random data containing 6 planted 64-byte family patterns.
+Each sample is 48 KB: a unique stub, a family-shared contiguous core, and a unique tail.
 Ground truth is recorded in MANIFEST.txt. No malicious code is present.
 
 Running the AutoYara preset (this takes a minute or two)...
 
 Verifying the result:
   [ok]   generate() returned a result -- 14 keys returned
-  [ok]   result contains the documented keys -- k_clusters=4, file_count=6, gram_size=64
-  [ok]   rule_string is non-empty -- 1883 chars, 20 lines
-  [ok]   rule is structurally well-formed YARA -- 12 hex string(s) declared
+  [ok]   result contains the documented keys -- k_clusters=2, file_count=6, gram_size=8
+  [ok]   rule_string is non-empty -- 1121 chars, 22 lines
+  [ok]   rule is structurally well-formed YARA -- 16 hex string(s) declared
   [ok]   rule carries the requested name -- rule_name honoured
   [ok]   rule compiles as real YARA -- accepted by the yara-python compiler
   [ok]   compiled rule can scan a file -- scanned a sample, 1 match(es)
@@ -49,16 +48,16 @@ Generated rule (first 25 lines):
   rule acsac_claim2
   {
   	//Input TP Rate:
-  	//4/6
+  	//6/6
   	strings:
-  		//Benign FP est: -0.0 Malicious FP est: -0.0 Entropy: 5.875 Found in 3 files
-  		$x3 = { A4 07 CD BC 08 06 2E 97 ... }
-  		//Benign FP est: -0.0 Malicious FP est: -0.0 Entropy: 5.8125 Found in 3 files
-  		$x2 = { 20 81 01 64 FC 7E 28 AB ... }
+  		//Benign FP est: -0.0 Malicious FP est: -0.0 Entropy: 3.0 Found in 3 files
+  		$x0 = { ... }
+  		//Benign FP est: -0.0 Malicious FP est: -0.0 Entropy: 3.0 Found in 3 files
+  		$x1 = { ... }
   		[... further $xN entries ...]
 
   		condition:
-  (2 of ($x0,$x1,$x2) ) or (2 of ($x3,$x4,$x5) )}
+  (... of (...)) or (... of (...))}
 
 ================================================================================
 CLAIM 2: PASS -- the AutoYara preset produced a valid, compilable YARA rule
@@ -66,15 +65,28 @@ CLAIM 2: PASS -- the AutoYara preset produced a valid, compilable YARA rule
 --------------------------------------------------------------------------------
 
 A NOTE ON WHAT THE RULE SHOWS
-    In the transcript above, two strings are annotated "Found in 3 files".
-    Those correspond to byte sequences the proxy corpus deliberately plants
-    across the three members of each synthetic family, and the emitted
-    condition is a disjunction over two groups -- mirroring the corpus's
-    two-family structure.
+    Strings annotated "Found in 3 files" correspond to the family-shared
+    contiguous core that the proxy corpus gives each of the three members of a
+    family, and the emitted condition is a disjunction over two groups,
+    mirroring the corpus's two-family structure.
 
-    This is a useful sanity signal that the pipeline is genuinely discovering
-    shared structure rather than emitting noise. It is NOT evidence about
-    detection quality on real malware; the input is synthetic. See ../../use.txt.
+    This is a sanity signal that the pipeline is discovering shared structure
+    rather than emitting noise. It is NOT evidence about detection quality on
+    real malware; the input is synthetic. See ../../use.txt.
+
+THESE NUMBERS ARE NOT A BENCHMARK
+    Claim 2 and Claim 3 exercise the two pipelines the tool offers. The figures
+    they print - TP rate, cluster count, gram size, string count - MUST NOT be
+    read as a comparison between them.
+
+    The input is a synthetic corpus we constructed. On it, both pipelines
+    saturate: across repeated runs both reached a 6/6 TP rate every time. A
+    benchmark on which both methods score perfectly cannot distinguish them,
+    and a synthetic corpus cannot support a claim about either method's
+    behaviour on real malware in any case.
+
+    Any comparative claim between the two approaches rests on the paper's
+    evaluation against its real malware corpus, not on this artifact.
 
 TROUBLESHOOTING
     "generate() returned a result" fails with None

@@ -48,10 +48,28 @@ IMPORTANT - THIS CLAIM IS NOT BIT-REPRODUCIBLE
     running this twice SHOULD expect the output to differ. See ../../use.txt.
 
 WHAT IS *NOT* CLAIMED
-    That the emitted rule is a useful detection signature, or that the derived
-    cluster count matches the proxy corpus's ground-truth family count. The
-    input is synthetic pseudo-random data, and cluster recovery on it is not
-    meaningful evidence about the algorithm's behaviour on real malware.
+    That the emitted rule is a useful detection signature. The input is a
+    synthetic corpus we constructed (see ../../use.txt), so the rule matches
+    fabricated structure, not any real malware family.
+
+    On this corpus the pipeline does recover the ground-truth family count -
+    it derived k=2 in every run we performed. That is a useful sign the
+    mechanism works, but it is NOT evidence about cluster-recovery quality on
+    real malware: the fuzzy-hash similarity the stage depends on is present in
+    this corpus because we deliberately built it in.
+
+THESE NUMBERS ARE NOT A BENCHMARK
+    Claim 2 and Claim 3 exercise the two pipelines the tool offers. The figures
+    they print - TP rate, cluster count, gram size, string count - must NOT be
+    read as a comparison between the two approaches.
+
+    On the synthetic proxy corpus both pipelines saturate: in repeated runs
+    both reached a 6/6 TP rate every time. A benchmark on which both methods
+    score perfectly cannot distinguish them, and synthetic data cannot support
+    a claim about either method's behaviour on real malware regardless.
+
+    Any comparative claim rests on the paper's evaluation against its real
+    malware corpus, not on this artifact.
 
 RELATION TO THE PAPER
     Demonstrates that the paper's contributed pipeline is present and
