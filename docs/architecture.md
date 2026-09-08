@@ -116,8 +116,18 @@ flowchart TD
 
 The intent is centroids that tolerate noise in the byte-signature feature space better than plain k-means, while borrowing family structure from the fuzzy-hash clustering.
 
-!!! warning "Results are not bit-reproducible"
-    The CRDEST split uses an unseeded random number generator, so repeated runs on identical inputs can produce different centroids and therefore different rules. Compare runs by rule quality, not by byte-for-byte equality.
+!!! warning "Results are not currently bit-reproducible"
+    Step 1 builds a fresh `java.util.Random` with no seed, so repeated runs on
+    identical inputs can produce different centroids and therefore different
+    rules. For now, compare runs by rule quality rather than by byte-for-byte
+    equality.
+
+    **This is a fixable limitation, not a property of the method.** CRDEST is our
+    own code: [`runCRDEST()`](https://github.com/Botacin-s-Lab/AutoPYaraBackend/blob/main/src/main/java/edu/lps/acs/ml/autoyara/clustering/AugmentedKMeansClusterer.java#L127)
+    already carries a commented-out `rand.setSeed(0L)` at the partition step.
+    Threading a caller-supplied seed through to that call and exposing it on
+    `generate()` would make the augmented pipeline deterministic. This is a
+    planned change to the backend.
 
 ## The Java ↔ Python bridge
 
