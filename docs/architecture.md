@@ -186,3 +186,9 @@ If you use AutoPYara in academic work, please also cite the original AutoYara pa
 > [doi:10.1145/3411508.3421372](https://doi.org/10.1145/3411508.3421372) · [arXiv:2009.03779](https://arxiv.org/abs/2009.03779)
 
 The backend also depends on [JSAT](https://github.com/EdwardRaff/JSAT) for linear algebra and spectral co-clustering, and KiloGrams for large-scale n-gram extraction.
+
+This project was also the subject of a related thesis:
+
+> Nhat Minh Nguyen. **"AutoPYara: A Python/Java Framework for Automatic YARA Rule Generation Using Semi-Supervised Clustering."** M.S. Thesis, Texas A&M University, Spring 2025.
+
+See the [homepage's Citation section](index.md#citation) for how to cite the AutoPYara paper itself.

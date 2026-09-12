@@ -18,7 +18,7 @@ setup(
     description="Next-Gen Automatic YARA Rule Generator",
     long_description=open("README.md").read(),
     long_description_content_type="text/markdown",
-    author="GIA MTech",
+    author="Mabon Ninan, Nhat Minh Nguyen, Soumyajyoti Dutta, Sidharth Anil, Marcus Botacin",
     maintainer="Mabon Ninan",
     maintainer_email="ninanmm@tamu.edu",
     url="https://github.com/Botacin-s-Lab/AutoPYaraPyPI",

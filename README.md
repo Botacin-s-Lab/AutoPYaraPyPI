@@ -224,6 +224,32 @@ See [RELEASING.md](RELEASING.md) for how versioning and PyPI publishing work.
 
 We're accepting contributions — if you run into an issue or have a fix, fork the repo, open a PR against `main`, and we'll take a look. PRs are automatically built and tested; once checks pass and a maintainer approves, it gets merged. `main` itself isn't open to direct pushes from anyone (including maintainers) — everything goes through review. See [CONTRIBUTING.md](CONTRIBUTING.md) for details.
 
+## 📄 Citation
+
+If you use AutoPYara in academic work, please cite:
+
+> Mabon Ninan\*, Nhat Minh Nguyen\*, Soumyajyoti Dutta, Sidharth Anil, and Marcus Botacin.
+> **"AutoPYara: Next-Gen YARA Rule Generator for Malware Family Clustering."** *Annual Computer Security Applications Conference (ACSAC 2026)*, to appear.
+> \*Equal contribution. Texas A&M University — {ninanmm, nmnguy29, soumyajyoti1998, sid.anil, botacin}@tamu.edu
+
+```bibtex
+@inproceedings{autopyara2026,
+  title     = {AutoPYara: Next-Gen YARA Rule Generator for Malware Family Clustering},
+  author    = {Ninan, Mabon and Nguyen, Nhat Minh and Dutta, Soumyajyoti and Anil, Sidharth and Botacin, Marcus},
+  booktitle = {Proceedings of the Annual Computer Security Applications Conference (ACSAC)},
+  year      = {2026},
+  note      = {To appear}
+}
+```
+
+The `AutoYara` preset builds on the original [AutoYara](https://github.com/FutureComputing4AI/AutoYara) project (Apache 2.0); if you use it, please also cite:
+
+> Edward Raff, Richard Zak, Gary Lopez Munoz, William Fleming, Hyrum S. Anderson, Bobby Filar, Charles Nicholas, and James Holt.
+> **"Automatic Yara Rule Generation Using Biclustering."** *13th ACM Workshop on Artificial Intelligence and Security (AISec '20)*, 2020.
+> [doi:10.1145/3411508.3421372](https://doi.org/10.1145/3411508.3421372) · [arXiv:2009.03779](https://arxiv.org/abs/2009.03779)
+
+See the [Architecture](https://botacin-s-lab.github.io/AutoPYaraPyPI/architecture/#credits) page for the full attribution.
+
 ## License
 
 MIT — see [LICENSE](LICENSE).
@@ -232,6 +258,7 @@ MIT — see [LICENSE](LICENSE).
 
 <div align="center">
 
-Maintained by Mabon Ninan, Texas A&M University — [ninanmm@tamu.edu](mailto:ninanmm@tamu.edu)
+Mabon Ninan, Nhat Minh Nguyen, Soumyajyoti Dutta, Sidharth Anil, and Marcus Botacin — Texas A&M University
+Maintained by Mabon Ninan — [ninanmm@tamu.edu](mailto:ninanmm@tamu.edu)
 
 </div>

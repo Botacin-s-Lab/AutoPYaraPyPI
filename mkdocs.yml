@@ -73,7 +73,8 @@ markdown_extensions:
       emoji_generator: !!python/name:material.extensions.emoji.to_svg
 
 copyright: >
-  Maintained by Mabon Ninan, Texas A&amp;M University —
+  Mabon Ninan, Nhat Minh Nguyen, Soumyajyoti Dutta, Sidharth Anil, and Marcus Botacin
+  — Texas A&amp;M University. Maintained by Mabon Ninan —
   <a href="mailto:ninanmm@tamu.edu">ninanmm@tamu.edu</a>
 
 extra:
