@@ -41,11 +41,13 @@ class PythonInterface:
 
             print(f"[*] Initializing Backend: {jar_path}")
 
+            heap = os.getenv("AUTOPYARA_JVM_HEAP", "14g")
+
             try:
                 jpype.startJVM(
                     jpype.getDefaultJVMPath(),
                     f"-Djava.class.path={jar_path}",
-                    "-Xmx14g", # Memory limit
+                    f"-Xmx{heap}", # Memory limit (override with AUTOPYARA_JVM_HEAP, e.g. "4g")
                     convertStrings=True
                 )
                 cls._jvm_started = True

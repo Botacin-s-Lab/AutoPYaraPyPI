@@ -143,7 +143,10 @@ cluster.resetYaraState()             # clear state before reuse
 
 The result dictionary carries `rule_string`, `k_clusters`, `strings`, `file_count`, `total_files`, `TP`, `TP_total`, `conditions_min`, `conditions_max`, `gram_size`, and `byte_candidate_count`. It is `None` when no rule satisfying the configured constraints could be built.
 
-The JVM is started once per process, and its heap is currently fixed at 14 GB in [`interface.py`](https://github.com/Botacin-s-Lab/AutoPYaraPyPI/blob/main/autopyara/interface.py) — worth knowing if you are running on a memory-constrained machine.
+The JVM is started once per process, with a heap that defaults to 14 GB; set the
+`AUTOPYARA_JVM_HEAP` environment variable (e.g. `AUTOPYARA_JVM_HEAP=4g`) before
+constructing `AutoPYara()` to lower it on a memory-constrained machine — see
+[`interface.py`](https://github.com/Botacin-s-Lab/AutoPYaraPyPI/blob/main/autopyara/interface.py).
 
 ## How the jar gets into the Python package
 
