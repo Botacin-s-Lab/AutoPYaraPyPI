@@ -2,7 +2,7 @@
 
 All notable changes to this project are documented here. Format loosely follows [Keep a Changelog](https://keepachangelog.com/).
 
-## [Unreleased]
+## [0.1.3] - 2026-10-02
 
 ### Changed
 - The JVM backend's heap, previously fixed at `-Xmx14g`, is now configurable via the `AUTOPYARA_JVM_HEAP` environment variable (e.g. `AUTOPYARA_JVM_HEAP=4g`), still defaulting to `14g`. Lets `AutoPYara()` run on smaller machines.
