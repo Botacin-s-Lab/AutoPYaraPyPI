@@ -28,8 +28,8 @@ AutoPYara is a Python framework for automated YARA rule generation from collecti
 
 The result: cluster-aware, precision-engineered YARA signatures with minimal manual effort.
 
-!!! info "This site is a work in progress"
-    This documentation is intentionally basic for now — installation, a quick start, and the full API reference. More material (including the accompanying paper, once published) will land here over time.
+!!! success "Accepted at ACSAC 2026"
+    The AutoPYara paper will appear at the *Annual Computer Security Applications Conference (ACSAC), 2026*. [Read the paper →](paper.md)
 
 AutoPYara is [live on PyPI](https://pypi.org/project/autopyara/) — `pip install autopyara` to get started.
 
@@ -81,32 +81,37 @@ Train your own Bloom filters on proprietary datasets.
 - [Quick Start](quickstart.md) — generate your first YARA rule.
 - [API Reference](api.md) — presets, advanced usage, and the full `generate()` parameter table.
 - [Architecture](architecture.md) — how the Python frontend and the separate Java backend fit together.
+- [Paper & Resources](paper.md) — the ACSAC 2026 paper (PDF), abstract, citation, and artifacts.
 - [Development & Releasing](development.md) — running the tests and how releases are published.
 
 ## Project links
 
 | | |
 |---|---|
-| :fontawesome-brands-python: **PyPI** | [pypi.org/project/autopyara](https://pypi.org/project/autopyara/) |
-| :fontawesome-brands-github: **Python frontend** | [Botacin-s-Lab/AutoPYaraPyPI](https://github.com/Botacin-s-Lab/AutoPYaraPyPI) |
-| :fontawesome-brands-java: **Java backend** | [Botacin-s-Lab/AutoPYaraBackend](https://github.com/Botacin-s-Lab/AutoPYaraBackend) — separate repository, builds the embedded `AutoYara.jar` |
+| :material-archive: **ACSAC permanent artifact** | [Zenodo — zenodo.org/records/23107801](https://zenodo.org/records/23107801) |
+| :fontawesome-brands-github: **ACSAC artifact source** | [GitHub — Botacin-s-Lab/AutoPYara](https://github.com/Botacin-s-Lab/AutoPYara/) |
+| :material-book-open-variant: **API documentation** | [GitHub Pages — botacin-s-lab.github.io/AutoPYaraPyPI](https://botacin-s-lab.github.io/AutoPYaraPyPI/) |
+| :fontawesome-brands-github: **PyPI source repository** | [GitHub — Botacin-s-Lab/AutoPYaraPyPI](https://github.com/Botacin-s-Lab/AutoPYaraPyPI) |
+| :fontawesome-brands-java: **Java backend engine** | [GitHub — Botacin-s-Lab/AutoPYaraBackend](https://github.com/Botacin-s-Lab/AutoPYaraBackend) |
+| :material-database: **YARA rules & benchmark data** | [Zenodo — zenodo.org/records/22665898](https://zenodo.org/records/22665898) |
+| :fontawesome-brands-python: **Python package** (`pip install autopyara`) | [PyPI — pypi.org/project/autopyara](https://pypi.org/project/autopyara/) |
+| :material-file-pdf-box: **Paper (PDF)** | [AutoPYara_ACSAC2026.pdf](paper/AutoPYara_ACSAC2026.pdf) |
 | :material-bug: **Issues** | [Report a bug](https://github.com/Botacin-s-Lab/AutoPYaraPyPI/issues) |
 
 ## Citation
 
-If you use AutoPYara in academic work, please cite:
+If you use AutoPYara in academic work, please cite the ACSAC 2026 paper ([PDF](paper/AutoPYara_ACSAC2026.pdf)). Recommended citation:
 
 > Mabon Ninan\*, Nhat Minh Nguyen\*, Soumyajyoti Dutta, Sidharth Anil, and Marcus Botacin.
-> **"AutoPYara: Next-Gen YARA Rule Generator for Malware Family Clustering."** *Annual Computer Security Applications Conference (ACSAC 2026)*, to appear.
+> **"AutoPYara: Next-Gen YARA Rule Generator for Malware Family Clustering."** *Annual Computer Security Applications Conference (ACSAC)*, 2026.
 > \*Equal contribution. Texas A&M University — {ninanmm, nmnguy29, soumyajyoti1998, sid.anil, botacin}@tamu.edu
 
 ```bibtex
 @inproceedings{autopyara2026,
   title     = {AutoPYara: Next-Gen YARA Rule Generator for Malware Family Clustering},
   author    = {Ninan, Mabon and Nguyen, Nhat Minh and Dutta, Soumyajyoti and Anil, Sidharth and Botacin, Marcus},
-  booktitle = {Proceedings of the Annual Computer Security Applications Conference (ACSAC)},
-  year      = {2026},
-  note      = {To appear}
+  booktitle = {Annual Computer Security Applications Conference (ACSAC)},
+  year      = {2026}
 }
 ```
 

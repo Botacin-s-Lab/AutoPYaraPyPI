@@ -13,6 +13,7 @@ nav:
   - Quick Start: quickstart.md
   - API Reference: api.md
   - Architecture: architecture.md
+  - Paper: paper.md
   - Development & Releasing: development.md
 
 theme:
@@ -83,3 +84,7 @@ extra:
       link: https://github.com/Botacin-s-Lab/AutoPYaraPyPI
     - icon: fontawesome/brands/python
       link: https://pypi.org/project/autopyara/
+    - icon: material/file-document
+      link: https://botacin-s-lab.github.io/AutoPYaraPyPI/paper/
+    - icon: material/archive
+      link: https://zenodo.org/records/23107801

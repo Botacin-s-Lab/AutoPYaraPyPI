@@ -194,4 +194,4 @@ This project was also the subject of a related thesis:
 
 > Nhat Minh Nguyen. **"AutoPYara: A Python/Java Framework for Automatic YARA Rule Generation Using Semi-Supervised Clustering."** M.S. Thesis, Texas A&M University, Spring 2025.
 
-See the [homepage's Citation section](index.md#citation) for how to cite the AutoPYara paper itself.
+See the [Paper & Resources](paper.md) page for the ACSAC 2026 paper and how to cite it.
