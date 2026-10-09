@@ -13,7 +13,7 @@
 
 Automatically discover malware families and generate high-quality, tightly scoped YARA rules using probabilistic clustering and Bloom-filtered n-gram analysis.
 
-[**Documentation**](https://botacin-s-lab.github.io/AutoPYaraPyPI/) · [PyPI](https://pypi.org/project/autopyara/) · [Report a Bug](https://github.com/Botacin-s-Lab/AutoPYaraPyPI/issues) · [Changelog](CHANGELOG.md) · [Releasing](RELEASING.md)
+[**Documentation**](https://botacin-s-lab.github.io/AutoPYaraPyPI/) · [Paper](docs/paper/AutoPYara_ACSAC2026.pdf) · [PyPI](https://pypi.org/project/autopyara/) · [Report a Bug](https://github.com/Botacin-s-Lab/AutoPYaraPyPI/issues) · [Changelog](CHANGELOG.md) · [Releasing](RELEASING.md)
 
 </div>
 
@@ -207,7 +207,7 @@ tool.train(
 
 ## 📖 Documentation
 
-Full documentation lives at **[botacin-s-lab.github.io/AutoPYaraPyPI](https://botacin-s-lab.github.io/AutoPYaraPyPI/)**. It's intentionally basic for now — installation, quick start, and the API reference — with more material (including the accompanying paper, once published) landing there over time.
+Full documentation lives at **[botacin-s-lab.github.io/AutoPYaraPyPI](https://botacin-s-lab.github.io/AutoPYaraPyPI/)** — installation, quick start, the API reference, and the [ACSAC 2026 paper page](https://botacin-s-lab.github.io/AutoPYaraPyPI/paper/).
 
 ## 🧪 Development
 
@@ -226,21 +226,32 @@ We're accepting contributions — if you run into an issue or have a fix, fork t
 
 ## 📄 Citation
 
-If you use AutoPYara in academic work, please cite:
+**AutoPYara has been accepted at ACSAC 2026.** [Read the paper (PDF)](docs/paper/AutoPYara_ACSAC2026.pdf). If you use AutoPYara in academic work, please cite:
 
 > Mabon Ninan\*, Nhat Minh Nguyen\*, Soumyajyoti Dutta, Sidharth Anil, and Marcus Botacin.
-> **"AutoPYara: Next-Gen YARA Rule Generator for Malware Family Clustering."** *Annual Computer Security Applications Conference (ACSAC 2026)*, to appear.
+> **"AutoPYara: Next-Gen YARA Rule Generator for Malware Family Clustering."** *Annual Computer Security Applications Conference (ACSAC)*, 2026.
 > \*Equal contribution. Texas A&M University — {ninanmm, nmnguy29, soumyajyoti1998, sid.anil, botacin}@tamu.edu
 
 ```bibtex
 @inproceedings{autopyara2026,
   title     = {AutoPYara: Next-Gen YARA Rule Generator for Malware Family Clustering},
   author    = {Ninan, Mabon and Nguyen, Nhat Minh and Dutta, Soumyajyoti and Anil, Sidharth and Botacin, Marcus},
-  booktitle = {Proceedings of the Annual Computer Security Applications Conference (ACSAC)},
-  year      = {2026},
-  note      = {To appear}
+  booktitle = {Annual Computer Security Applications Conference (ACSAC)},
+  year      = {2026}
 }
 ```
+
+### Artifacts and resources
+
+| Resource | Link |
+|---|---|
+| ACSAC permanent artifact (Zenodo) | https://zenodo.org/records/23107801 |
+| ACSAC artifact source (GitHub) | https://github.com/Botacin-s-Lab/AutoPYara/ |
+| API documentation (GitHub Pages) | https://botacin-s-lab.github.io/AutoPYaraPyPI/ |
+| PyPI source repository (GitHub) | https://github.com/Botacin-s-Lab/AutoPYaraPyPI |
+| Java backend engine (GitHub) | https://github.com/Botacin-s-Lab/AutoPYaraBackend |
+| YARA rules & benchmark data (Zenodo) | https://zenodo.org/records/22665898 |
+| Python package, `pip install autopyara` (PyPI) | https://pypi.org/project/autopyara/ |
 
 The `AutoYara` preset builds on the original [AutoYara](https://github.com/FutureComputing4AI/AutoYara) project (Apache 2.0); if you use it, please also cite:
 
